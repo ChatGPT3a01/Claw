@@ -93,42 +93,67 @@ foreach ($a in $args) {
 }
 
 if ($showBanner) {
+  # 龍蝦色 ANSI truecolor (PS 7+ / 現代終端機支援)
+  $e = [char]27
+  $LR  = "$e[38;2;230;75;55m"     # 龍蝦紅 (主色)
+  $LO  = "$e[38;2;255;144;112m"   # 龍蝦橙 (高光)
+  $LD  = "$e[38;2;160;40;30m"     # 龍蝦深紅 (陰影)
+  $W   = "$e[38;2;230;230;230m"   # 白
+  $G   = "$e[38;2;130;130;130m"   # 灰 (註解)
+  $Y   = "$e[38;2;255;220;100m"   # 黃 (作者/重點)
+  $M   = "$e[38;2;255;130;220m"   # 洋紅 (Codex)
+  $B   = "$e[38;2;130;200;255m"   # 藍 (Gemini)
+  $T   = "$e[38;2;100;230;200m"   # 青綠 (分隔線)
+  $RST = "$e[0m"
+
   Write-Host ""
-  Write-Host "    ██████╗██╗      █████╗ ██╗    ██╗" -ForegroundColor Cyan
-  Write-Host "   ██╔════╝██║     ██╔══██╗██║    ██║" -ForegroundColor Cyan
-  Write-Host "   ██║     ██║     ███████║██║ █╗ ██║" -ForegroundColor Cyan
-  Write-Host "   ██║     ██║     ██╔══██║██║███╗██║" -ForegroundColor Cyan
-  Write-Host "   ╚██████╗███████╗██║  ██║╚███╔███╔╝" -ForegroundColor Cyan
-  Write-Host "    ╚═════╝╚══════╝╚═╝  ╚═╝ ╚══╝╚══╝ " -ForegroundColor Cyan
+  Write-Host "    $LR██████╗██╗      █████╗ ██╗    ██╗$RST       $LO🦞 🦞 🦞$RST"
+  Write-Host "   $LR██╔════╝██║     ██╔══██╗██║    ██║$RST        $LO🦞 🦞$RST"
+  Write-Host "   $LR██║     ██║     ███████║██║ █╗ ██║$RST        $LO🦞 🦞$RST       $Y v3.0$RST"
+  Write-Host "   $LR██║     ██║     ██╔══██║██║███╗██║$RST        $LO🦞 🦞$RST       $W Claude × Codex × Gemini$RST"
+  Write-Host "   $LR╚██████╗███████╗██║  ██║╚███╔███╔╝$RST         $LO🦞$RST         $G in-session delegation$RST"
+  Write-Host "    $LR╚═════╝╚══════╝╚═╝  ╚═╝ ╚══╝╚══╝$RST          $LO🦞$RST"
   Write-Host ""
-  Write-Host "    v3.0  ·  " -NoNewline -ForegroundColor White
-  Write-Host "Claude" -NoNewline -ForegroundColor Cyan
-  Write-Host " × " -NoNewline -ForegroundColor DarkGray
-  Write-Host "Codex" -NoNewline -ForegroundColor Magenta
-  Write-Host " × " -NoNewline -ForegroundColor DarkGray
-  Write-Host "Gemini" -NoNewline -ForegroundColor Blue
-  Write-Host "  ·  in-session delegation" -ForegroundColor White
-  Write-Host "    ─────────────────────────────────────────────────────────────" -ForegroundColor DarkGray
-  Write-Host "    by 阿亮老師（曾慶良 主任）" -ForegroundColor Yellow
-  Write-Host "       新興科技推廣中心主任 · 教育部學科中心研究教師" -ForegroundColor DarkYellow
-  Write-Host "       YouTube: @Liang-yt02  ·  Email: 3a01chatgpt@gmail.com" -ForegroundColor DarkGray
-  Write-Host "    ─────────────────────────────────────────────────────────────" -ForegroundColor DarkGray
+  Write-Host "    $Y by 阿亮老師（曾慶良 主任）$RST"
+  Write-Host "       $G 新興科技推廣中心主任 · 教育部學科中心研究教師 · 臺北市資訊教育輔導員$RST"
+  Write-Host "       $G YouTube: @Liang-yt02  ·  Email: 3a01chatgpt@gmail.com$RST"
   Write-Host ""
-  Write-Host "    🦞 主場 " -NoNewline -ForegroundColor White
-  Write-Host "Claude" -NoNewline -ForegroundColor Cyan
-  Write-Host "  │  " -NoNewline -ForegroundColor DarkGray
-  Write-Host "/codex:* " -NoNewline -ForegroundColor Magenta
-  Write-Host "→ Codex" -NoNewline -ForegroundColor White
-  Write-Host "  │  " -NoNewline -ForegroundColor DarkGray
-  Write-Host "/gemini:* " -NoNewline -ForegroundColor Blue
-  Write-Host "→ Gemini" -ForegroundColor White
+  Write-Host "    $T━━━━━━━━━━━━━━━━━━━━━ 📋 使用說明 ━━━━━━━━━━━━━━━━━━━━━$RST"
   Write-Host ""
-  Write-Host "    常用: " -NoNewline -ForegroundColor DarkGray
-  Write-Host "/codex:review · /codex:rescue · /gemini:review · /gemini:rescue" -ForegroundColor Gray
-  Write-Host "    啟動器: " -NoNewline -ForegroundColor DarkGray
-  Write-Host "claw --setup-help · claw --about · claw --no-banner" -ForegroundColor Gray
+  Write-Host "    $LR🦞 主場$RST    $W 直接打字$RST  $G→ Claude (有對話記憶、cache 命中、最便宜)$RST"
   Write-Host ""
-  Write-Host "    正在啟動 claude..." -ForegroundColor DarkGreen
+  Write-Host "    $M🤖 Codex$RST   $G(OpenAI 視角，擅長挑戰決策)$RST"
+  Write-Host "       $M/codex:review$RST                $G 程式碼審查$RST"
+  Write-Host "       $M/codex:adversarial-review$RST    $G 對抗式挑戰你的設計$RST"
+  Write-Host "       $M/codex:rescue$RST $W<任務>$RST            $G 委派任務 (修 bug、追問題)$RST"
+  Write-Host "       $M/codex:rescue --background$RST   $G 背景跑，繼續對話$RST"
+  Write-Host "       ${M}/codex:status${RST} ${G}/${RST} ${M}:result${RST} ${G}/${RST} ${M}:cancel${RST}  ${G}看/拿/取消背景任務${RST}"
+  Write-Host ""
+  Write-Host "    $B✨ Gemini$RST  $G(1M context, 看整個專案)$RST"
+  Write-Host "       $B/gemini:review$RST               $G 程式碼審查 (1M context 一次看完)$RST"
+  Write-Host "       $B/gemini:adversarial-review$RST   $G 對抗式挑戰$RST"
+  Write-Host "       $B/gemini:rescue$RST $W<任務>$RST           $G 委派任務$RST"
+  Write-Host "       $B/gemini:rescue --background$RST  $G 背景跑$RST"
+  Write-Host "       ${B}/gemini:status${RST} ${G}/${RST} ${B}:result${RST} ${G}/${RST} ${B}:cancel${RST}  ${G}看/拿/取消背景任務${RST}"
+  Write-Host ""
+  Write-Host "    $Y🚩 旗標$RST     $G(加在指令後)$RST"
+  Write-Host "       $Y--base main$RST       $G 審查 branch 與 main 差異$RST"
+  Write-Host "       $Y--background$RST      $G 背景跑，不阻塞對話$RST"
+  Write-Host "       $Y--model$RST $W<名稱>$RST    $G 指定模型 (gemini: flash/pro/flash-3/pro-3)$RST"
+  Write-Host ""
+  Write-Host "    $LO🛠️  MCP 切換$RST  $G(在 PowerShell, 不在 claude 內)$RST"
+  Write-Host "       $LO mcp-ls$RST            $G 看目前啟用了哪些 MCP$RST"
+  Write-Host "       $LO mcp-on$RST $W<名稱>$RST     $G 載入備援 MCP$RST"
+  Write-Host "       $LO mcp-off all$RST       $G 一次卸下全部$RST"
+  Write-Host ""
+  Write-Host "    $W❓ 啟動器選項$RST"
+  Write-Host "       $W claw --about$RST          $G 完整作者資訊 (職務/獎項/聯絡)$RST"
+  Write-Host "       $W claw --setup-help$RST     $G plugin 安裝指引$RST"
+  Write-Host "       $W claw --no-banner$RST      $G 跳過此 banner 啟動$RST"
+  Write-Host ""
+  Write-Host "    $T━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━$RST"
+  Write-Host ""
+  Write-Host "    ${G}正在啟動 claude...${RST}"
   Write-Host ""
 }
 
