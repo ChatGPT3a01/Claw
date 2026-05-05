@@ -78,10 +78,12 @@ function Show-About {
 }
 
 $showBanner = $true
+$autoMode   = $true   # 預設啟用自動模式 (--dangerously-skip-permissions)
 $forwarded  = @()
 foreach ($a in $args) {
   switch -Regex ($a) {
     '^--no-banner$'    { $showBanner = $false; continue }
+    '^--safe$'         { $autoMode = $false; continue }
     '^--about$'        { Show-About; exit 0 }
     '^--setup-help$'   {
       $help = Join-Path (Split-Path -Parent $MyInvocation.MyCommand.Path) 'setup-plugins.ps1'
@@ -90,6 +92,12 @@ foreach ($a in $args) {
     }
     default            { $forwarded += $a }
   }
+}
+
+# 自動模式: 減少詢問、更多自主判斷
+if ($autoMode) {
+  $env:CLAUDE_CODE_NO_FLICKER = "1"
+  $forwarded = @('--dangerously-skip-permissions') + $forwarded
 }
 
 if ($showBanner) {
@@ -118,41 +126,64 @@ if ($showBanner) {
   Write-Host "       $G 新興科技推廣中心主任 · 教育部學科中心研究教師 · 臺北市資訊教育輔導員$RST"
   Write-Host "       $G YouTube: @Liang-yt02  ·  Email: 3a01chatgpt@gmail.com$RST"
   Write-Host ""
-  Write-Host "    $T━━━━━━━━━━━━━━━━━━━━━ 📋 使用說明 ━━━━━━━━━━━━━━━━━━━━━$RST"
+  $div = "    ${G}─────────────────────────────────────────────────────────────${RST}"
+  Write-Host "    $T╔═════════════════════ 📋 使用說明 ═════════════════════════╗$RST"
   Write-Host ""
-  Write-Host "    $LR🦞 主場$RST    $W 直接打字$RST  $G→ Claude (有對話記憶、cache 命中、最便宜)$RST"
+  Write-Host "    $Y🌟 最簡單用法${RST}  $G(0 學習成本，推薦學員)${RST}"
+  Write-Host "       $W直接用中文跟 Claude 說想做什麼:${RST}"
+  Write-Host "         $W『請 Codex 審查我的程式碼』${RST}"
+  Write-Host "         $W『讓 Gemini 用 1M context 看整個專案』${RST}"
+  Write-Host "         $W『派 Codex 修這個 bug』${RST}"
+  Write-Host "       $G→ Claude 聽得懂，會自動派工${RST}  $Y✓ 不用記任何指令${RST}"
   Write-Host ""
-  Write-Host "    $M🤖 Codex$RST   $G(OpenAI 視角，擅長挑戰決策)$RST"
-  Write-Host "       $M/codex:review$RST                $G 程式碼審查$RST"
-  Write-Host "       $M/codex:adversarial-review$RST    $G 對抗式挑戰你的設計$RST"
-  Write-Host "       $M/codex:rescue$RST $W<任務>$RST            $G 委派任務 (修 bug、追問題)$RST"
-  Write-Host "       $M/codex:rescue --background$RST   $G 背景跑，繼續對話$RST"
+  Write-Host $div
+  Write-Host ""
+  Write-Host "    $LR🦞 Claude (主場)${RST}"
+  Write-Host "       $W直接打字${RST}  $G→ 有對話記憶、cache 命中、最便宜${RST}"
+  Write-Host ""
+  Write-Host $div
+  Write-Host ""
+  Write-Host "    $M🤖 Codex${RST}   $G(OpenAI 視角，擅長挑戰決策)${RST}"
+  Write-Host "       ${M}/codex:review${RST}                ${G}程式碼審查${RST}"
+  Write-Host "       ${M}/codex:adversarial-review${RST}    ${G}對抗式挑戰你的設計${RST}"
+  Write-Host "       ${M}/codex:rescue${RST} ${W}<任務>${RST}            ${G}委派任務 (修 bug、追問題)${RST}"
+  Write-Host "       ${M}/codex:rescue --background${RST}   ${G}背景跑，繼續對話${RST}"
   Write-Host "       ${M}/codex:status${RST} ${G}/${RST} ${M}:result${RST} ${G}/${RST} ${M}:cancel${RST}  ${G}看/拿/取消背景任務${RST}"
   Write-Host ""
-  Write-Host "    $B✨ Gemini$RST  $G(1M context, 看整個專案)$RST"
-  Write-Host "       $B/gemini:review$RST               $G 程式碼審查 (1M context 一次看完)$RST"
-  Write-Host "       $B/gemini:adversarial-review$RST   $G 對抗式挑戰$RST"
-  Write-Host "       $B/gemini:rescue$RST $W<任務>$RST           $G 委派任務$RST"
-  Write-Host "       $B/gemini:rescue --background$RST  $G 背景跑$RST"
+  Write-Host $div
+  Write-Host ""
+  Write-Host "    $B✨ Gemini${RST}  $G(1M context, 看整個專案)${RST}"
+  Write-Host "       ${B}/gemini:review${RST}               ${G}程式碼審查 (1M 一次看完)${RST}"
+  Write-Host "       ${B}/gemini:adversarial-review${RST}   ${G}對抗式挑戰${RST}"
+  Write-Host "       ${B}/gemini:rescue${RST} ${W}<任務>${RST}           ${G}委派任務${RST}"
+  Write-Host "       ${B}/gemini:rescue --background${RST}  ${G}背景跑${RST}"
   Write-Host "       ${B}/gemini:status${RST} ${G}/${RST} ${B}:result${RST} ${G}/${RST} ${B}:cancel${RST}  ${G}看/拿/取消背景任務${RST}"
   Write-Host ""
-  Write-Host "    $Y🚩 旗標$RST     $G(加在指令後)$RST"
-  Write-Host "       $Y--base main$RST       $G 審查 branch 與 main 差異$RST"
-  Write-Host "       $Y--background$RST      $G 背景跑，不阻塞對話$RST"
-  Write-Host "       $Y--model$RST $W<名稱>$RST    $G 指定模型 (gemini: flash/pro/flash-3/pro-3)$RST"
+  Write-Host $div
   Write-Host ""
-  Write-Host "    $LO🛠️  MCP 切換$RST  $G(在 PowerShell, 不在 claude 內)$RST"
-  Write-Host "       $LO mcp-ls$RST            $G 看目前啟用了哪些 MCP$RST"
-  Write-Host "       $LO mcp-on$RST $W<名稱>$RST     $G 載入備援 MCP$RST"
-  Write-Host "       $LO mcp-off all$RST       $G 一次卸下全部$RST"
+  Write-Host "    $Y🚩 旗標${RST}     $G(加在指令後)${RST}"
+  Write-Host "       ${Y}--base main${RST}       ${G}審查 branch 與 main 差異${RST}"
+  Write-Host "       ${Y}--background${RST}      ${G}背景跑，不阻塞對話${RST}"
+  Write-Host "       ${Y}--model${RST} ${W}<名稱>${RST}    ${G}指定模型 (gemini: flash/pro/flash-3/pro-3)${RST}"
   Write-Host ""
-  Write-Host "    $W❓ 啟動器選項$RST"
-  Write-Host "       $W claw --about$RST          $G 完整作者資訊 (職務/獎項/聯絡)$RST"
-  Write-Host "       $W claw --setup-help$RST     $G plugin 安裝指引$RST"
-  Write-Host "       $W claw --no-banner$RST      $G 跳過此 banner 啟動$RST"
+  Write-Host $div
   Write-Host ""
-  Write-Host "    $T━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━$RST"
+  Write-Host "    $LO🛠️  MCP 切換${RST}  $G(在 PowerShell, 不在 claude 內)${RST}"
+  Write-Host "       ${LO}mcp-ls${RST}            ${G}看目前啟用了哪些 MCP${RST}"
+  Write-Host "       ${LO}mcp-on${RST} ${W}<名稱>${RST}     ${G}載入備援 MCP${RST}"
+  Write-Host "       ${LO}mcp-off all${RST}       ${G}一次卸下全部${RST}"
   Write-Host ""
+  Write-Host $div
+  Write-Host ""
+  Write-Host "    $W❓ 啟動器選項${RST}"
+  Write-Host "       ${W}claw --about${RST}          ${G}完整作者資訊 (職務/獎項/聯絡)${RST}"
+  Write-Host "       ${W}claw --setup-help${RST}     ${G}plugin 安裝指引${RST}"
+  Write-Host "       ${W}claw --no-banner${RST}      ${G}跳過此 banner 啟動${RST}"
+  Write-Host "       ${W}claw --safe${RST}           ${G}關閉自動模式 (改回每件事都問你)${RST}"
+  Write-Host ""
+  Write-Host "    $T╚═══════════════════════════════════════════════════════════╝$RST"
+  Write-Host ""
+  Write-Host "    ${LO}🦞 自動模式啟用中${RST}  $G(--dangerously-skip-permissions, --safe 可關)${RST}"
   Write-Host "    ${G}正在啟動 claude...${RST}"
   Write-Host ""
 }
@@ -519,8 +550,8 @@ if ($SkipPlugins) {
   }
 }
 
-# === Step 4: 設定 User PATH + PowerShell profile ===
-Section "4/6 設定 PATH 與 PowerShell alias"
+# === Step 4: 設定 PATH + alias + 自動模式 ===
+Section "4/6 設定 PATH、alias 與自動模式"
 
 # (1) User 層級 PATH (CMD / PowerShell / 任何新開視窗都認得)
 $userPath = [System.Environment]::GetEnvironmentVariable('Path', 'User')
@@ -560,6 +591,51 @@ $endMarker
 "@
   Add-Content $PROFILE $block
   Ok "PowerShell profile 加入 mcp-on / mcp-off / mcp-ls alias"
+}
+
+# (3) Codex 自動模式 (~/.codex/config.toml)
+$codexDir  = "$env:USERPROFILE\.codex"
+$codexConf = "$codexDir\config.toml"
+if (-not (Test-Path $codexDir)) { New-Item -ItemType Directory -Path $codexDir -Force | Out-Null }
+$codexExisting = if (Test-Path $codexConf) { Get-Content $codexConf -Raw } else { '' }
+$codexMarker = '# === claw v3 auto-mode ==='
+if ($codexExisting -and $codexExisting.Contains($codexMarker)) {
+  Info "Codex 自動模式已設定，跳過"
+} else {
+  $codexBlock = @"
+
+$codexMarker
+# 減少詢問、自主判斷 (相當於 codex --full-auto)
+approval_policy = "on-request"
+sandbox_mode    = "workspace-write"
+# === end claw v3 auto-mode ===
+"@
+  Add-Content $codexConf $codexBlock
+  Ok "Codex 自動模式: approval=on-request, sandbox=workspace-write"
+}
+
+# (4) Gemini 自動模式 (~/.gemini/settings.json)
+$geminiDir  = "$env:USERPROFILE\.gemini"
+$geminiConf = "$geminiDir\settings.json"
+if (-not (Test-Path $geminiDir)) { New-Item -ItemType Directory -Path $geminiDir -Force | Out-Null }
+try {
+  $geminiJson = if (Test-Path $geminiConf) {
+    Get-Content $geminiConf -Raw | ConvertFrom-Json -AsHashtable
+  } else { @{} }
+  if ($null -eq $geminiJson) { $geminiJson = @{} }
+  if ($geminiJson.approvalMode -eq 'yolo' -or $geminiJson.approvalMode -eq 'auto_edit') {
+    Info "Gemini 自動模式已設定 (approvalMode=$($geminiJson.approvalMode))"
+  } else {
+    $geminiJson.approvalMode = 'auto_edit'  # auto_edit 比 yolo 安全，自動允許編輯但其他工具仍問
+    [System.IO.File]::WriteAllText(
+      $geminiConf,
+      ($geminiJson | ConvertTo-Json -Depth 100),
+      [System.Text.UTF8Encoding]::new($false)
+    )
+    Ok "Gemini 自動模式: approvalMode=auto_edit"
+  }
+} catch {
+  Warn "Gemini 設定寫入失敗: $($_.Exception.Message)"
 }
 
 # === Step 5: 互動式認證 (Codex + Gemini) ===
