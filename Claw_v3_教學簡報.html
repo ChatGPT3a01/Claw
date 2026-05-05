@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🦞 Claw v3 — Claude × Codex × Gemini 一鍵安裝教學</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --lobster: #E64B37;
+            --lobster-dark: #B8392B;
+            --lobster-light: #FFB3A7;
+            --lobster-bg: #FFF5F2;
+            --codex: #C53A8B;
+            --gemini: #4A7CD9;
+            --claude: #E64B37;
+            --bg-dark1: #2D2D2D;
+            --bg-dark2: #1A1A1A;
+            --text-dark: #1F1F1F;
+            --text-mid: #505050;
+            --text-light: #888888;
+        }
+
+        body {
+            font-family: 'Noto Sans TC', 'Microsoft JhengHei', 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, var(--bg-dark1) 0%, var(--bg-dark2) 100%);
+            min-height: 100vh;
+            overflow: hidden;
+            color: #333;
+        }
+
+        /* === 導航列 === */
+        .nav-bar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: 60px;
+            background: rgba(230, 75, 55, 0.18);
+            backdrop-filter: blur(12px);
+            border-bottom: 2px solid rgba(230, 75, 55, 0.4);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 30px;
+            z-index: 10000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .nav-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 0.5px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .nav-buttons { display: flex; gap: 10px; }
+
+        .nav-btn {
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .nav-btn:hover {
+            background: var(--lobster);
+            border-color: var(--lobster);
+            transform: translateY(-2px);
+        }
+
+        /* === 導航箭頭 === */
+        .nav-arrow {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(230, 75, 55, 0.4);
+            color: white;
+            width: 56px; height: 56px;
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.4);
+            font-size: 22px;
+            cursor: pointer;
+            z-index: 9000;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .nav-arrow:hover {
+            background: var(--lobster);
+            transform: translateY(-50%) scale(1.1);
+            box-shadow: 0 6px 20px rgba(230, 75, 55, 0.5);
+        }
+        .prev-arrow { left: 30px; }
+        .next-arrow { right: 30px; }
+        .nav-arrow:disabled { opacity: 0.3; cursor: not-allowed; }
+
+        /* === 投影片容器 === */
+        .slide-container {
+            width: 100%;
+            height: 100vh;
+            padding-top: 60px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .slide {
+            position: absolute;
+            top: 60px; left: 0;
+            width: 100%;
+            height: calc(100vh - 60px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 30px;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            z-index: 10;
+        }
+
+        .slide.active {
+            display: flex;
+            opacity: 1;
+            z-index: 20;
+        }
+
+        /* === 內容卡片 === */
+        .content-card {
+            background: rgba(255, 255, 255, 0.99);
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            padding: 50px 60px;
+            max-width: 1280px;
+            width: 95%;
+            max-height: 88vh;
+            overflow-y: auto;
+            position: relative;
+            border-top: 6px solid var(--lobster);
+        }
+
+        /* 封面卡片 — 完全置中 */
+        .cover-card {
+            background: linear-gradient(135deg, #FFFFFF 0%, var(--lobster-bg) 100%);
+            border-radius: 24px;
+            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.5);
+            padding: 70px 90px;
+            max-width: 1280px;
+            width: 95%;
+            text-align: center;
+            border-top: 8px solid var(--lobster);
+        }
+
+        .cover-card h1 {
+            color: var(--lobster);
+            font-size: 64px;
+            font-weight: 900;
+            margin-bottom: 20px;
+            text-shadow: 0 4px 12px rgba(230, 75, 55, 0.2);
+            letter-spacing: 2px;
+        }
+        .cover-card .subtitle {
+            color: var(--text-dark);
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 25px;
+        }
+        .cover-card .tagline {
+            color: var(--text-mid);
+            font-size: 24px;
+            font-weight: 400;
+            margin-bottom: 50px;
+            line-height: 1.8;
+        }
+        .cover-card .author-block {
+            border-top: 2px dashed var(--lobster-light);
+            padding-top: 30px;
+            margin-top: 30px;
+            color: var(--text-mid);
+            font-size: 18px;
+            line-height: 1.9;
+        }
+        .cover-card .author-name {
+            color: var(--lobster);
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        /* 通用標題 */
+        h1 { color: var(--lobster); font-size: 48px; margin-bottom: 22px; }
+        h2 {
+            color: var(--lobster);
+            font-size: 36px;
+            font-weight: 800;
+            margin-bottom: 25px;
+            border-bottom: 4px solid var(--lobster);
+            padding-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        h3 { color: var(--text-dark); font-size: 24px; margin: 22px 0 12px; font-weight: 700; }
+        p, li {
+            font-size: 22px;
+            line-height: 1.85;
+            color: var(--text-mid);
+            margin-bottom: 14px;
+        }
+
+        ul, ol { margin-left: 28px; }
+        ul li::marker { color: var(--lobster); }
+        ol li::marker { color: var(--lobster); font-weight: 700; }
+
+        code {
+            background: #FFF0EC;
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-family: 'Fira Code', 'Consolas', monospace;
+            color: var(--lobster-dark);
+            font-weight: 600;
+            font-size: 0.95em;
+            border: 1px solid var(--lobster-light);
+        }
+        pre {
+            background: #1F1F1F;
+            color: #F0F0F0;
+            padding: 28px 32px;
+            border-radius: 14px;
+            overflow-x: auto;
+            margin: 24px 0;
+            font-size: 19px;
+            line-height: 1.7;
+            font-family: 'Fira Code', 'Consolas', monospace;
+            border-left: 5px solid var(--lobster);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+        }
+        pre code {
+            background: transparent;
+            color: inherit;
+            border: none;
+            padding: 0;
+            font-size: inherit;
+        }
+
+        /* Box 樣式 */
+        .box {
+            padding: 22px 28px;
+            border-radius: 14px;
+            margin: 22px 0;
+            border-left: 6px solid;
+            font-size: 20px;
+            line-height: 1.75;
+        }
+        .box.warn { background: #FFF8E1; border-color: #F5A623; color: #856404; }
+        .box.info { background: var(--lobster-bg); border-color: var(--lobster); color: var(--text-dark); }
+        .box.tip { background: #E8F5E9; border-color: #4CAF50; color: #1B5E20; }
+
+        /* 概念卡片 grid */
+        .concept-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 22px;
+            margin-top: 25px;
+        }
+        .concept-card {
+            background: #FAFAFA;
+            padding: 26px 28px;
+            border-radius: 14px;
+            border-top: 4px solid var(--lobster);
+            box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .concept-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 10px 26px rgba(230, 75, 55, 0.18);
+        }
+        .concept-card h3 { margin-top: 0; }
+
+        /* AI 角色卡（三家不同色） */
+        .ai-card.claude { border-top-color: var(--claude); }
+        .ai-card.codex  { border-top-color: var(--codex); }
+        .ai-card.gemini { border-top-color: var(--gemini); }
+        .ai-card.claude h3 { color: var(--claude); }
+        .ai-card.codex h3  { color: var(--codex); }
+        .ai-card.gemini h3 { color: var(--gemini); }
+
+        /* 步驟列表 */
+        .step-list { list-style: none; counter-reset: step; margin: 25px 0; }
+        .step-list li {
+            counter-increment: step;
+            padding: 18px 22px 18px 70px;
+            background: #FFF8F5;
+            border-radius: 12px;
+            margin-bottom: 14px;
+            position: relative;
+            border-left: 4px solid var(--lobster);
+            font-size: 21px;
+            line-height: 1.7;
+        }
+        .step-list li::before {
+            content: counter(step);
+            position: absolute;
+            left: 22px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            background: var(--lobster);
+            color: white;
+            font-weight: 800;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 3px 8px rgba(230, 75, 55, 0.4);
+        }
+
+        /* 對比表格 */
+        .compare-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-top: 22px;
+        }
+        .compare-col {
+            border-radius: 14px;
+            padding: 26px 28px;
+            min-height: 320px;
+        }
+        .compare-col.bad {
+            background: #F5F5F5;
+            border: 2px dashed #BBB;
+            opacity: 0.85;
+        }
+        .compare-col.good {
+            background: linear-gradient(135deg, var(--lobster-bg), #FFFFFF);
+            border: 2px solid var(--lobster);
+            box-shadow: 0 8px 24px rgba(230, 75, 55, 0.18);
+        }
+        .compare-col.bad h3 { color: #888; }
+        .compare-col.good h3 { color: var(--lobster); }
+        .compare-col p, .compare-col li { font-size: 19px; }
+
+        /* 引用 */
+        blockquote {
+            background: linear-gradient(135deg, var(--lobster-bg), #FFFFFF);
+            border-left: 6px solid var(--lobster);
+            padding: 26px 32px;
+            border-radius: 0 14px 14px 0;
+            margin: 22px 0;
+            font-style: italic;
+            color: var(--text-dark);
+            font-size: 22px;
+            line-height: 1.85;
+            box-shadow: 0 4px 14px rgba(230, 75, 55, 0.08);
+        }
+        blockquote::before { content: '“'; font-size: 60px; color: var(--lobster); line-height: 0; vertical-align: -25px; margin-right: 8px; }
+
+        /* 表格 */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 19px;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+        }
+        th {
+            background: var(--lobster);
+            color: white;
+            padding: 14px 18px;
+            text-align: left;
+            font-weight: 700;
+        }
+        td { padding: 14px 18px; border-top: 1px solid #eee; color: var(--text-mid); }
+        tr:nth-child(even) td { background: #FAFAFA; }
+
+        /* highlight pill */
+        .pill {
+            display: inline-block;
+            background: var(--lobster);
+            color: white;
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-size: 16px;
+            font-weight: 600;
+            margin: 4px;
+        }
+        .pill.codex  { background: var(--codex); }
+        .pill.gemini { background: var(--gemini); }
+
+        /* 頁碼指示器 */
+        .indicators {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+            z-index: 4000;
+            padding: 8px 18px;
+            background: rgba(0,0,0,0.4);
+            border-radius: 24px;
+            backdrop-filter: blur(8px);
+        }
+        .dot {
+            width: 10px; height: 10px;
+            background: rgba(255,255,255,0.4);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .dot:hover { background: rgba(255, 179, 167, 0.8); }
+        .dot.active {
+            background: var(--lobster);
+            transform: scale(1.4);
+            box-shadow: 0 0 12px var(--lobster);
+        }
+
+        /* 龍蝦 emoji 大字 */
+        .big-lobster {
+            font-size: 80px;
+            line-height: 1;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        /* 中央大字 */
+        .center-hero {
+            text-align: center;
+            padding: 30px 0;
+        }
+        .center-hero .hero-icon {
+            font-size: 96px;
+            margin-bottom: 20px;
+        }
+        .center-hero .hero-text {
+            font-size: 56px;
+            font-weight: 900;
+            color: var(--lobster);
+            margin-bottom: 16px;
+        }
+        .center-hero .hero-sub {
+            font-size: 26px;
+            color: var(--text-mid);
+        }
+
+        /* 終結頁 */
+        .closing-card {
+            text-align: center;
+            background: linear-gradient(135deg, #FFFFFF 0%, var(--lobster-bg) 100%);
+            border-top: 8px solid var(--lobster);
+        }
+        .closing-card h1 { font-size: 56px; }
+        .contact-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin: 30px 0;
+        }
+        .contact-card {
+            background: white;
+            padding: 24px;
+            border-radius: 14px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+            transition: transform 0.3s;
+        }
+        .contact-card:hover { transform: translateY(-6px); }
+        .contact-card .label { color: var(--text-light); font-size: 14px; text-transform: uppercase; letter-spacing: 2px; }
+        .contact-card .value { color: var(--lobster); font-size: 18px; font-weight: 700; margin-top: 8px; word-break: break-all; }
+
+        /* 滾動條美化 */
+        .content-card::-webkit-scrollbar { width: 10px; }
+        .content-card::-webkit-scrollbar-track { background: #F5F5F5; border-radius: 5px; }
+        .content-card::-webkit-scrollbar-thumb { background: var(--lobster-light); border-radius: 5px; }
+        .content-card::-webkit-scrollbar-thumb:hover { background: var(--lobster); }
+    </style>
+</head>
+<body>
+
+    <!-- 導航列 -->
+    <div class="nav-bar">
+        <div class="nav-title">🦞 Claw v3 教學簡報</div>
+        <div class="nav-buttons">
+            <button class="nav-btn" onclick="goToSlide(0)">🏠 首頁</button>
+            <button class="nav-btn" onclick="toggleFullscreen()">🖥️ 全螢幕</button>
+            <a href="https://github.com/ChatGPT3a01/Claw" target="_blank" class="nav-btn">🐙 GitHub</a>
+            <a href="https://www.youtube.com/@Liang-yt02" target="_blank" class="nav-btn">🎥 YT</a>
+        </div>
+    </div>
+
+    <!-- 投影片容器 -->
+    <div class="slide-container">
+
+        <!-- Slide 1: 封面 -->
+        <div class="slide active">
+            <div class="cover-card">
+                <div class="big-lobster">🦞</div>
+                <h1>Claw v3</h1>
+                <div class="subtitle">把 Codex 和 Gemini 塞進 Claude Code</div>
+                <div class="tagline">
+                    一個視窗 · 三家 AI · 主場 Claude<br>
+                    真 session · cache 命中 · 不冷啟動 · token 省 ~90%
+                </div>
+                <div class="author-block">
+                    <div class="author-name">阿亮老師（曾慶良 主任）</div>
+                    新興科技推廣中心主任 · 教育部學科中心研究教師 · 臺北市資訊教育輔導員<br>
+                    <span style="font-size: 16px; opacity: 0.75;">YouTube: @Liang-yt02 · Email: 3a01chatgpt@gmail.com</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 2: 痛點 -->
+        <div class="slide">
+            <div class="content-card">
+                <h2>😩 為什麼需要 Claw？</h2>
+                <p>備課的時候，常常需要不同 AI 做不同事，但每換一家就有以下痛點：</p>
+                <div class="concept-grid">
+                    <div class="concept-card">
+                        <h3>🪟 切視窗切到頭暈</h3>
+                        <p>Claude 一個視窗、Gemini 一個視窗、Codex 一個視窗，五個視窗開下去，誰是誰都搞不清楚。</p>
+                    </div>
+                    <div class="concept-card">
+                        <h3>🔐 每換一家要重新登入</h3>
+                        <p>三家 CLI 各有自己的認證流程，常常切過去發現要重新貼 API Key、重新走 OAuth。</p>
+                    </div>
+                    <div class="concept-card">
+                        <h3>🧠 對話歷史丟失</h3>
+                        <p>上一個視窗講過的內容、寫過的程式碼，到下一個視窗完全要重新講一次。</p>
+                    </div>
+                    <div class="concept-card">
+                        <h3>💸 從零冷啟動，token 燒得快</h3>
+                        <p>每次新對話 prompt cache 都 miss，同樣的工作量花 10 倍的 token。</p>
+                    </div>
+                </div>
+                <div class="box info" style="margin-top: 28px;">
+                    <strong>結論：</strong>多個 AI CLI 各自為政是個大坑。Claw v3 用 plugin 模型把這些痛點全打包解決。
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: v3 核心思想 -->
+        <div class="slide">
+            <div class="content-card">
+                <h2>🎯 v3 完全改寫</h2>
+                <p>v2 是 Python 包裝器，v3 改用 <strong>Claude Code Plugin 模型</strong>。差別大到不像同一個工具：</p>
+                <div class="compare-grid">
+                    <div class="compare-col bad">
+                        <h3>❌ v2（舊版包裝器）</h3>
+                        <ul>
+                            <li>每次發訊都重啟子進程</li>
+                            <li>失去 prompt cache</li>
+                            <li>對話歷史每次重送</li>
+                            <li>token 燒得快</li>
+                            <li>啟動慢、對話越久越慢</li>
+                        </ul>
+                    </div>
+                    <div class="compare-col good">
+                        <h3>✅ v3（Plugin 模型）</h3>
+                        <ul>
+                            <li>主場 Claude 不重啟</li>
+                            <li>prompt cache 100% 命中</li>
+                            <li>對話記憶完整保留</li>
+                            <li><strong>token 省 ~90%</strong></li>
+                            <li>越聊越快、越聊越省</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="box tip" style="margin-top: 26px;">
+                    <strong>核心思想：</strong>不是「給你三家 AI」，而是「讓你只用一家、需要時請另外兩家幫忙」。
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: 三家 AI 角色 -->
+        <div class="slide">
+            <div class="content-card">
+                <h2>👥 三家 AI、各司其職</h2>
+                <p>v3 把三家 AI 設計成「主場 + 兩位顧問」的協作關係：</p>
+                <div class="concept-grid">
+                    <div class="concept-card ai-card claude">
+                        <h3>🦞 Claude（主場）</h3>
+                        <p style="font-size: 18px;">負責主要對話、寫作、寫程式</p>
+                        <p style="font-size: 17px; color: #888;">• 完整對話記憶<br>• Prompt cache 命中<br>• 最便宜、最快</p>
+                    </div>
+                    <div class="concept-card ai-card codex">
+                        <h3>🤖 Codex（顧問）</h3>
+                        <p style="font-size: 18px;">OpenAI 視角，擅長挑戰決策</p>
+                        <p style="font-size: 17px; color: #888;">• 程式碼審查<br>• 對抗式挑戰<br>• 委派任務修 bug</p>
+                    </div>
+                    <div class="concept-card ai-card gemini">
+                        <h3>✨ Gemini（顧問）</h3>
+                        <p style="font-size: 18px;">1M context，看整個專案</p>
+                        <p style="font-size: 17px; color: #888;">• 大型 codebase 審查<br>• 整本講義一次看完<br>• 跨檔案整合分析</p>
+                    </div>
+                </div>
+                <div class="box info" style="margin-top: 26px;">
+                    <strong>使用心法：</strong>主場永遠是 Claude，需要 OpenAI 或 Google 視角時才叫顧問來幫忙。
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: 前置條件 -->
+        <div class="slide">
+            <div class="content-card">
+                <h2>📦 唯一前置條件</h2>
+                <div class="center-hero">
+                    <div class="hero-icon">⚙️</div>
+                    <div class="hero-text">Node.js 18+</div>
+                    <div class="hero-sub">沒裝就去 <code style="font-size: 22px;">https://nodejs.org</code> 下一步到底</div>
+                </div>
+                <div class="box tip">
+                    <strong>好消息：</strong>其他三家 CLI（claude / codex / gemini）<br>
+                    👉 <strong>install.ps1 會自動偵測並用 npm install -g 補上</strong>，您不用記任何 npm 指令。
+                </div>
+                <div class="box info">
+                    <strong>為什麼 Node.js 不能自動裝？</strong><br>
+                    Node.js 安裝需要管理員權限與系統級設定（PATH、執行檔關聯），不適合腳本自動處理。其他 CLI 都是 npm 套件，跟 Node.js 走，所以可以自動補。
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: 三行安裝 -->
+        <div class="slide">
+            <div class="content-card">
+                <h2>🚀 一鍵安裝（真·三行）</h2>
+                <p>確認 Node.js 已裝後，開啟 <strong>PowerShell</strong>，貼下面三行：</p>
+                <pre><code>git clone https://github.com/ChatGPT3a01/Claw.git
+cd Claw
+.\install.ps1</code></pre>
+                <div class="box info">
+                    <strong>安裝過程</strong>會問您兩件事：
+                    <ol style="margin-top: 10px;">
+                        <li><strong>跳出瀏覽器登入 ChatGPT</strong>（Codex 認證）</li>
+                        <li><strong>請您貼 Gemini API Key</strong>（從 <code>https://aistudio.google.com/app/apikey</code> 取得，免費）</li>
+                    </ol>
+                </div>
+                <div class="box tip">
+                    <strong>裝完後</strong>關掉 PowerShell、重新開一個，任何位置打 <code>claw</code> 即可啟動。
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7: install.ps1 6 件事 -->
+        <div class="slide">
+            <div class="content-card">
+                <h2>🔧 install.ps1 自動做的 6 件事</h2>
+                <p>看似只跑一個指令，背後做了完整的環境配置：</p>
+                <ol class="step-list">
+                    <li><strong>檢查並補裝 npm CLI</strong> — 偵測 claude / codex / gemini，缺哪個自動 <code>npm install -g</code> 補上</li>
+                    <li><strong>部署 claw 命令</strong>到 <code>~/.claude/claw/</code>，內含 claw.ps1、claw.bat、setup-plugins.ps1、uninstall.ps1</li>
+                    <li><strong>自動裝兩個 Claude Code plugin</strong> — codex@openai-codex 和 gemini@abiswas97-gemini</li>
+                    <li><strong>設定 User PATH</strong>（CMD / PowerShell 都認得）+ <strong>PowerShell alias</strong>（mcp-on / mcp-off / mcp-ls）</li>
+                    <li><strong>互動式認證</strong> — 自動跑 <code>codex login</code>，並提示您貼 GOOGLE_API_KEY</li>
+                    <li><strong>顯示完成提示</strong>，告訴您下一步要做什麼</li>
+                </ol>
+                <div class="box info">
+                    <strong>所有設定都用 marker 區塊保護</strong>，重複執行 install.ps1 不會破壞您既有的 PowerShell profile 或 Codex 設定。
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8: 啟動 claw -->
+        <div class="slide">
+            <div class="content-card">
+                <h2>🎬 啟動 claw</h2>
+                <p>裝完之後，<strong>關掉舊 PowerShell、開新的</strong>（讓 PATH 生效），然後：</p>
+                <pre><code>claw</code></pre>
+                <h3>您會看到：</h3>
+                <ul>
+                    <li>🦞 <strong>龍蝦紅 CLAW ASCII 大字</strong>（旁邊還有大隻 🦞 龍蝦圖案）</li>
+                    <li>📋 <strong>完整使用說明框框</strong>（最簡單用法、Codex / Gemini 指令、旗標、MCP 切換）</li>
+                    <li>👨‍🏫 <strong>作者資訊</strong>（職務、聯絡方式）</li>
+                    <li>🦞 <strong>「自動模式啟用中」</strong>提示（下面會講）</li>
+                </ul>
+                <div class="box tip">
+                    <strong>看完後</strong>底下會顯示：<br>
+                    <code style="font-size: 18px;">🦞 按空白鍵 (或任意鍵) 進入 claude · Ctrl+C 取消</code><br><br>
+                    隨時按一下鍵 → 進入 Claude Code 主對話。<strong>沒有時間限制，您慢慢讀。</strong>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 9: 最簡單用法 -->
+        <div class="slide">
+            <div class="content-card">
+                <h2>🌟 最簡單用法（推薦學員）</h2>
+                <div style="text-align: center; margin: 20px 0;">
+                    <span class="pill">0 學習成本</span>
+                    <span class="pill">不用記任何指令</span>
+                    <span class="pill">會說話就會用</span>
+                </div>
+                <p>進入 claude 後，<strong>直接用中文跟它說想做什麼</strong>：</p>
+                <blockquote>請 Codex 審查我剛寫的程式碼</blockquote>
+                <blockquote>讓 Gemini 用 1M context 看整個專案</blockquote>
+                <blockquote>派 Codex 修這個 bug</blockquote>
+                <div class="box tip">
+                    <strong>👉 Claude 聽得懂、會自動派工。</strong>學員完全不用記 <code>/codex:review</code> 之類的指令，會講話就會用。
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 10: 進階 Slash 指令 -->
+        <div class="slide">
+            <div class="content-card">
+                <h2>⚡ 進階：Slash 指令</h2>
+                <p>想要精準控制可以直接打 slash 指令（打 <code>/codex:</code> 然後 Claude Code 會跳出選單）：</p>
+                <table>
+                    <tr><th>指令</th><th>說明</th></tr>
+                    <tr><td><code>/codex:review</code></td><td>程式碼審查（一般）</td></tr>
+                    <tr><td><code>/codex:adversarial-review</code></td><td>對抗式挑戰你的設計</td></tr>
+                    <tr><td><code>/codex:rescue &lt;任務&gt;</code></td><td>委派任務（修 bug、追問題）</td></tr>
+                    <tr><td><code>/gemini:review</code></td><td>1M context 看整個專案</td></tr>
+                    <tr><td><code>/gemini:adversarial-review</code></td><td>Gemini 對抗式挑戰</td></tr>
+                    <tr><td><code>/gemini:rescue &lt;任務&gt;</code></td><td>委派 Gemini</td></tr>
+                </table>
+                <h3>常用旗標</h3>
+                <ul>
+                    <li><code>--background</code> — 背景跑，繼續對話</li>
+                    <li><code>--base main</code> — 審查 branch 與 main 差異</li>
+                    <li><code>--model &lt;名稱&gt;</code> — 指定模型（Gemini: flash / pro / flash-3 / pro-3）</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 11: 自動模式 -->
+        <div class="slide">
+            <div class="content-card">
+                <h2>🤖 自動模式（預設啟用）</h2>
+                <p>三家 AI 都<strong>預設走自動模式</strong>，減少詢問、自主判斷處理：</p>
+                <table>
+                    <tr><th>AI</th><th>自動設定</th><th>等於</th></tr>
+                    <tr>
+                        <td><strong>🦞 Claude</strong></td>
+                        <td><code>--dangerously-skip-permissions</code></td>
+                        <td>跳過權限詢問</td>
+                    </tr>
+                    <tr>
+                        <td><strong>🤖 Codex</strong></td>
+                        <td>config.toml: <code>approval_policy=on-request</code><br><code>sandbox_mode=workspace-write</code></td>
+                        <td>相當於 <code>codex --full-auto</code></td>
+                    </tr>
+                    <tr>
+                        <td><strong>✨ Gemini</strong></td>
+                        <td>settings.json: <code>approvalMode=auto_edit</code></td>
+                        <td>自動允許編輯類工具</td>
+                    </tr>
+                </table>
+                <div class="box warn">
+                    <strong>不喜歡？</strong>用 <code>claw --safe</code> 啟動 → 改回每件事都問你。
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 12: MCP 切換 -->
+        <div class="slide">
+            <div class="content-card">
+                <h2>🛠️ MCP 切換（給進階使用者）</h2>
+                <p>Claude Code 啟動會把 <code>~/.claude.json</code> 的所有 MCP 載入到 context window。<strong>裝太多會拖慢啟動、燒 token</strong>。</p>
+                <h3>解法：按需切換 MCP</h3>
+                <pre><code>mcp-ls                       # 看目前啟用了哪些 MCP
+mcp-on twstockmcpserver      # 想用台股 MCP 時臨時載入
+mcp-off twstockmcpserver     # 用完卸下
+mcp-off all                  # 一次卸下全部（啟動最快）</code></pre>
+                <div class="box info">
+                    <strong>架構：</strong>所有備援 MCP 設定都放在 <code>~/.claude/mcp-presets/</code>，平常 mcpServers 保持空的（最快），需要時用一個指令切回，無痛。
+                </div>
+                <div class="box tip">
+                    <strong>提示：</strong>切換後<strong>必須關閉並重啟</strong> Claude Code / claw 才會生效。
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 13: 常見問題 -->
+        <div class="slide">
+            <div class="content-card">
+                <h2>🆘 常見問題</h2>
+                <div class="concept-grid">
+                    <div class="concept-card">
+                        <h3>❌ 'claw' 不是內部命令</h3>
+                        <p style="font-size: 19px;">沒重開視窗。<strong>完全關掉所有終端機</strong>，重新開新的就好（Windows PATH 只在啟動時載入）。</p>
+                    </div>
+                    <div class="concept-card">
+                        <h3>🚫 執行原則限制</h3>
+                        <p style="font-size: 19px;">改用：<br><code style="font-size: 16px;">powershell -ExecutionPolicy Bypass -File .\install.ps1</code></p>
+                    </div>
+                    <div class="concept-card">
+                        <h3>📋 進 claude 後想再看 cheatsheet</h3>
+                        <p style="font-size: 19px;">在 claude 對話中輸入：<br><code>!claw --cheat</code><br>會即時印出完整使用說明。</p>
+                    </div>
+                    <div class="concept-card">
+                        <h3>🗑️ 想完全移除</h3>
+                        <p style="font-size: 19px;">執行：<br><code style="font-size: 15px;">& "$env:USERPROFILE\.claude\claw\uninstall.ps1"</code><br>會清乾淨 PATH、alias、plugin。</p>
+                    </div>
+                </div>
+                <div class="box info" style="margin-top: 24px;">
+                    <strong>更多問題</strong>：<code>claw --setup-help</code> 看 plugin 安裝指引，或上 GitHub issues 反應。
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 14: 結尾 -->
+        <div class="slide">
+            <div class="content-card closing-card">
+                <div class="big-lobster">🦞</div>
+                <h1>謝謝</h1>
+                <blockquote style="font-size: 24px; margin: 30px auto; max-width: 900px;">
+                    教育現場的工作越來越多，希望這個工具能幫大家省下重複切換的時間，<br>
+                    把心力留給需要的人或事。
+                </blockquote>
+                <div class="contact-grid">
+                    <a href="https://github.com/ChatGPT3a01/Claw" target="_blank" class="contact-card" style="text-decoration: none;">
+                        <div class="label">GitHub</div>
+                        <div class="value">ChatGPT3a01/Claw</div>
+                    </a>
+                    <a href="https://www.youtube.com/@Liang-yt02" target="_blank" class="contact-card" style="text-decoration: none;">
+                        <div class="label">YouTube</div>
+                        <div class="value">@Liang-yt02</div>
+                    </a>
+                    <a href="mailto:3a01chatgpt@gmail.com" class="contact-card" style="text-decoration: none;">
+                        <div class="label">Email</div>
+                        <div class="value">3a01chatgpt@gmail.com</div>
+                    </a>
+                </div>
+                <div style="margin-top: 30px; color: var(--text-mid); font-size: 18px; line-height: 1.9;">
+                    <strong style="color: var(--lobster); font-size: 22px;">阿亮老師（曾慶良 主任）</strong><br>
+                    新興科技推廣中心主任 · 教育部學科中心研究教師 · 臺北市資訊教育輔導員<br>
+                    <span style="font-size: 14px; opacity: 0.7;">© 2026 阿亮老師 版權所有 · 本工具僅供阿亮老師課程學員學習使用</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 導航箭頭 -->
+    <button class="nav-arrow prev-arrow" id="prevBtn" onclick="changeSlide(-1)">❮</button>
+    <button class="nav-arrow next-arrow" id="nextBtn" onclick="changeSlide(1)">❯</button>
+
+    <!-- 頁碼 -->
+    <div class="indicators" id="indicatorContainer"></div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+
+        function init() {
+            createIndicators();
+            showSlide(0);
+            updateButtons();
+            document.addEventListener('keydown', handleKeydown);
+        }
+
+        function handleKeydown(e) {
+            if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') changeSlide(-1);
+            if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') {
+                e.preventDefault();
+                changeSlide(1);
+            }
+            if (e.key === 'Home') goToSlide(0);
+            if (e.key === 'End') goToSlide(totalSlides - 1);
+            if (e.key.toLowerCase() === 'f') toggleFullscreen();
+        }
+
+        function createIndicators() {
+            const container = document.getElementById('indicatorContainer');
+            container.innerHTML = '';
+            slides.forEach((_, index) => {
+                const dot = document.createElement('div');
+                dot.className = 'dot';
+                dot.title = `第 ${index + 1} 頁`;
+                dot.onclick = () => goToSlide(index);
+                container.appendChild(dot);
+            });
+        }
+
+        function showSlide(index) {
+            if (index < 0) index = 0;
+            if (index >= totalSlides) index = totalSlides - 1;
+            slides.forEach(s => s.classList.remove('active'));
+            slides[index].classList.add('active');
+            currentSlide = index;
+            const dots = document.querySelectorAll('.dot');
+            dots.forEach((dot, idx) => dot.classList.toggle('active', idx === index));
+            updateButtons();
+            // 滾動到頂部 (長內容)
+            const card = slides[index].querySelector('.content-card, .cover-card');
+            if (card) card.scrollTop = 0;
+        }
+
+        function changeSlide(direction) { showSlide(currentSlide + direction); }
+        function goToSlide(index) { showSlide(index); }
+
+        function updateButtons() {
+            document.getElementById('prevBtn').disabled = currentSlide === 0;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides - 1;
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen();
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html>
