@@ -17,6 +17,7 @@
 param(
   [string]$InstallDir = "$env:USERPROFILE\.claude\claw",
   [switch]$SkipPlugins,
+  [switch]$SkipAuth,
   [switch]$Force
 )
 
@@ -402,7 +403,7 @@ Write-Host "    Claude × Codex × Gemini  ·  in-session delegation" -Foregroun
 Write-Host "    by 阿亮老師（曾慶良 主任）" -ForegroundColor Yellow
 
 # === Step 1: 檢查並自動補裝前置 CLI ===
-Section "1/5 檢查並自動補裝前置 CLI"
+Section "1/6 檢查並自動補裝前置 CLI"
 $cliMap = [ordered]@{
   'claude' = @{ desc = 'Claude Code';   pkg = '@anthropic-ai/claude-code' }
   'codex'  = @{ desc = 'OpenAI Codex';  pkg = '@openai/codex' }
@@ -441,7 +442,7 @@ foreach ($cli in $cliMap.Keys) {
 }
 
 # === Step 2: 寫出檔案 ===
-Section "2/5 部署檔案到 $InstallDir"
+Section "2/6 部署檔案到 $InstallDir"
 if (-not (Test-Path $InstallDir)) {
   New-Item -ItemType Directory -Path $InstallDir -Force | Out-Null
 }
@@ -470,7 +471,7 @@ foreach ($k in $deploy.Keys) {
 }
 
 # === Step 3: 安裝兩個 plugin ===
-Section "3/5 安裝 Claude Code plugin"
+Section "3/6 安裝 Claude Code plugin"
 if ($SkipPlugins) {
   Warn "已略過 plugin 安裝 (-SkipPlugins)"
 } else {
@@ -494,7 +495,7 @@ if ($SkipPlugins) {
 }
 
 # === Step 4: 設定 PowerShell profile ===
-Section "4/5 設定 PowerShell profile"
+Section "4/6 設定 PowerShell profile"
 if (-not (Test-Path $PROFILE)) {
   New-Item -ItemType File -Path $PROFILE -Force | Out-Null
   Ok "建立 profile: $PROFILE"
@@ -523,24 +524,82 @@ $endMarker
   Info "alias  mcp-on / mcp-off / mcp-ls"
 }
 
-# === Step 5: 完成 ===
-Section "5/5 完成"
+# === Step 5: 互動式認證 (Codex + Gemini) ===
+Section "5/6 互動式認證 Codex 與 Gemini"
+if ($SkipAuth) {
+  Warn "已略過認證 (-SkipAuth)。事後請手動執行 codex login 與設定 GOOGLE_API_KEY"
+} else {
+  # ── Codex ──
+  $codexAuthFile = "$env:USERPROFILE\.codex\auth.json"
+  if (Test-Path $codexAuthFile) {
+    Ok "Codex 已認證 (找到 $codexAuthFile)"
+  } else {
+    Write-Host ""
+    Write-Host "  [Codex 登入]" -ForegroundColor Magenta
+    Write-Host "    會跳出瀏覽器登入 ChatGPT，或選擇輸入 OpenAI API Key" -ForegroundColor DarkGray
+    $ans = Read-Host "    現在執行 codex login? [Y/n]"
+    if ($ans -notmatch '^[Nn]') {
+      Info "執行: codex login"
+      & codex login
+      if (Test-Path $codexAuthFile) {
+        Ok "Codex 登入成功"
+      } else {
+        Warn "Codex 似乎未完成登入，事後可手動執行: codex login"
+      }
+    } else {
+      Warn "略過 Codex 登入，事後請手動執行: codex login"
+    }
+  }
+
+  # ── Gemini ──
+  $geminiKeySet = -not [string]::IsNullOrWhiteSpace([System.Environment]::GetEnvironmentVariable('GOOGLE_API_KEY', 'User')) `
+                -or -not [string]::IsNullOrWhiteSpace([System.Environment]::GetEnvironmentVariable('GOOGLE_API_KEY', 'Machine')) `
+                -or (Test-Path "$env:USERPROFILE\.config\gcloud\application_default_credentials.json")
+  if ($geminiKeySet) {
+    Ok "Gemini 已認證 (GOOGLE_API_KEY 已設定 或 gcloud ADC 已存在)"
+  } else {
+    Write-Host ""
+    Write-Host "  [Gemini 認證]" -ForegroundColor Blue
+    Write-Host "    最簡單方式: 從 https://aistudio.google.com/app/apikey 取得免費 API Key" -ForegroundColor DarkGray
+    Write-Host "    (該頁面登入 Google 帳號 → 點 'Create API key' → 複製)" -ForegroundColor DarkGray
+    $key = Read-Host "    貼上 GOOGLE_API_KEY (留空略過, 'gcloud' 改走 gcloud auth)"
+    $key = $key.Trim()
+    if ($key -eq 'gcloud') {
+      if (Get-Command gcloud -ErrorAction SilentlyContinue) {
+        Info "執行: gcloud auth application-default login"
+        & gcloud auth application-default login
+      } else {
+        Warn "gcloud 未安裝，請至 https://cloud.google.com/sdk/docs/install 下載"
+        Warn "或回頭用 API Key 方式 (從 https://aistudio.google.com/app/apikey 取得)"
+      }
+    } elseif ($key) {
+      [System.Environment]::SetEnvironmentVariable('GOOGLE_API_KEY', $key, 'User')
+      $env:GOOGLE_API_KEY = $key
+      Ok "已永久設定 GOOGLE_API_KEY (使用者層級, 重開 PowerShell 後依然有效)"
+    } else {
+      Warn "略過 Gemini 認證，事後可手動: \$env:GOOGLE_API_KEY = '<key>'"
+    }
+  }
+}
+
+# === Step 6: 完成 ===
+Section "6/6 完成"
 Write-Host ""
 Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Green
 Write-Host "  ✓ 安裝完成！" -ForegroundColor Green
 Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Green
 Write-Host ""
-Write-Host "  下一步:" -ForegroundColor Cyan
-Write-Host "    1. 關閉這個 PowerShell 視窗，重新開一個 (讓 PATH/alias 生效)"
-Write-Host "    2. 任何位置輸入 " -NoNewline; Write-Host "claw" -NoNewline -ForegroundColor Yellow; Write-Host " 啟動"
-Write-Host "    3. 進入 claude 後執行:"
-Write-Host "         /codex:setup    " -NoNewline -ForegroundColor Magenta; Write-Host "  (檢查 Codex 認證)"
-Write-Host "         /gemini:setup   " -NoNewline -ForegroundColor Blue;    Write-Host "  (檢查 Gemini 認證)"
+Write-Host "  下一步 (就這一步！):" -ForegroundColor Cyan
+Write-Host "    1. 關掉這個 PowerShell 視窗，重新開一個" -ForegroundColor White
+Write-Host "    2. 任何位置輸入 " -NoNewline; Write-Host "claw" -ForegroundColor Yellow
+Write-Host "    3. 看到 ASCII 大字 CLAW + 進入 Claude Code = 成功 🎉"
 Write-Host ""
-Write-Host "  若 setup 提示要登入:" -ForegroundColor Yellow
-Write-Host "    Codex:   !codex login"
-Write-Host "    Gemini:  !gcloud auth application-default login"
-Write-Host "             或設定 `$env:GOOGLE_API_KEY"
+Write-Host "  進入後可以直接使用:" -ForegroundColor Cyan
+Write-Host "    直接打字           " -NoNewline -ForegroundColor White; Write-Host "→ Claude (主場)" -ForegroundColor DarkGray
+Write-Host "    /codex:review      " -NoNewline -ForegroundColor Magenta; Write-Host "→ Codex 程式碼審查" -ForegroundColor DarkGray
+Write-Host "    /codex:rescue      " -NoNewline -ForegroundColor Magenta; Write-Host "→ 委派 Codex 修 bug" -ForegroundColor DarkGray
+Write-Host "    /gemini:review     " -NoNewline -ForegroundColor Blue;    Write-Host "→ Gemini 用 1M context 看整個專案" -ForegroundColor DarkGray
+Write-Host "    /gemini:rescue     " -NoNewline -ForegroundColor Blue;    Write-Host "→ 委派 Gemini" -ForegroundColor DarkGray
 Write-Host ""
 Write-Host "  解除安裝:  " -NoNewline -ForegroundColor DarkGray
 Write-Host "& `"$InstallDir\uninstall.ps1`"" -ForegroundColor DarkGray
