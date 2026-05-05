@@ -682,11 +682,52 @@ try {
   Warn "Gemini 設定寫入失敗: $($_.Exception.Message)"
 }
 
-# === Step 5: 互動式認證 (Codex + Gemini) ===
-Section "5/6 互動式認證 Codex 與 Gemini"
+# === Step 5: 互動式認證 (Claude + Codex + Gemini) ===
+Section "5/6 互動式認證 Claude / Codex / Gemini"
 if ($SkipAuth) {
-  Warn "已略過認證 (-SkipAuth)。事後請手動執行 codex login 與設定 GOOGLE_API_KEY"
+  Warn "已略過認證 (-SkipAuth)。事後請手動完成三家認證"
 } else {
+  # ── Claude ──
+  $claudeCredFile = "$env:USERPROFILE\.claude\.credentials.json"
+  $anthropicEnv   = [System.Environment]::GetEnvironmentVariable('ANTHROPIC_API_KEY', 'User')
+  if (-not [string]::IsNullOrWhiteSpace($anthropicEnv)) {
+    Ok "Claude 已認證 (ANTHROPIC_API_KEY 已設定)"
+  } elseif (Test-Path $claudeCredFile) {
+    Ok "Claude 已認證 (找到 OAuth credentials)"
+  } else {
+    Write-Host ""
+    Write-Host "  [Claude 認證]" -ForegroundColor Red
+    Write-Host "    你的 Claude 怎麼用? 請選擇:" -ForegroundColor DarkGray
+    Write-Host "      [1] 貼 ANTHROPIC_API_KEY    (按量付費, ~`$1-5/月, `$5 免費額度)" -ForegroundColor Gray
+    Write-Host "      [2] Claude Pro/Team 訂閱    (待會啟動 claude 時引導 OAuth 登入)" -ForegroundColor Gray
+    Write-Host "      [3] 我已在別處登入過        (略過此步驟)" -ForegroundColor Gray
+    $choice = Read-Host "    選擇 [1/2/3, 預設 1]"
+    if ([string]::IsNullOrWhiteSpace($choice)) { $choice = '1' }
+    switch ($choice) {
+      '1' {
+        Write-Host "        從 https://console.anthropic.com/ 取得 API key" -ForegroundColor DarkGray
+        $key = (Read-Host "        貼上 ANTHROPIC_API_KEY (留空略過)").Trim()
+        if ($key) {
+          [System.Environment]::SetEnvironmentVariable('ANTHROPIC_API_KEY', $key, 'User')
+          $env:ANTHROPIC_API_KEY = $key
+          Ok "已永久設定 ANTHROPIC_API_KEY (使用者層級)"
+        } else {
+          Warn "略過 Claude 認證 (空白)"
+        }
+      }
+      '2' {
+        Info "選擇方案 B (Pro 訂閱) — 等下次執行 claude 時會自動跳出 OAuth 登入頁"
+        Info "或現在手動執行: claude (然後跟著畫面登入)"
+      }
+      '3' {
+        Info "略過 Claude 認證 (假設已在別處登入)"
+      }
+      default {
+        Warn "未知選擇 '$choice', 略過"
+      }
+    }
+  }
+
   # ── Codex ──
   $codexAuthFile = "$env:USERPROFILE\.codex\auth.json"
   if (Test-Path $codexAuthFile) {
