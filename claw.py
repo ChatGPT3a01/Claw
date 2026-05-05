@@ -213,12 +213,22 @@ DEFAULT_ENGINE = "cld"  # 啟動預設主引擎
 
 
 def _engine_color(engine: str) -> str:
-    """主引擎對應深飽和色（亮/暗終端皆清晰）。"""
+    """主引擎對應深飽和色（用於說明文字、訊息）。"""
     return {
         "cld": "#0d47a1",   # Claude 深藍
         "gld": "#1b5e20",   # Gemini 深綠
         "cod": "#b71c1c",   # Codex 深紅
     }.get(engine, "#1a1a1a")
+
+
+def _engine_prompt_style(engine: str) -> str:
+    """REPL prompt 用「黑字 + 亮飽和底」最大對比，cmd.exe 也清楚。"""
+    bg = {
+        "cld": "#64b5f6",   # 亮藍底
+        "gld": "#81c784",   # 亮綠底
+        "cod": "#ffb74d",   # 亮橘底
+    }.get(engine, "#e0e0e0")
+    return f"bold #000000 on {bg}"
 
 
 def repl() -> None:
@@ -239,13 +249,12 @@ def repl() -> None:
     )
 
     while True:
-        # prompt 用「白字 + 深色背景」確保最高對比度（任何終端都清楚）
-        prompt_label = (
-            f"[bold white on {_engine_color(current_engine)}] claw·{current_engine} "
-            f"[/bold white on {_engine_color(current_engine)}]"
-        )
+        # prompt: 黑字 + 亮飽和底（cmd.exe 也能清楚渲染）+ 自控冒號顏色
+        style = _engine_prompt_style(current_engine)
+        prompt_label = f"[{style}] claw·{current_engine} [/{style}][bold #e65100] ▸ [/bold #e65100]"
         try:
-            line = Prompt.ask(prompt_label).strip()
+            console.print(prompt_label, end="")
+            line = input().strip()
         except (KeyboardInterrupt, EOFError):
             console.print("\n[bold #1a1a1a]再見！[/bold #1a1a1a]")
             return
