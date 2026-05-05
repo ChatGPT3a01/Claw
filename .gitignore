@@ -1,52 +1,19 @@
-# Python
-__pycache__/
-*.py[cod]
-*.egg-info/
-dist/
-build/
-.eggs/
-*.egg
-
-# Environment
-.env
-.venv/
-venv/
-env/
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# Data
-data/sessions/
-*.db
+# Claw v3 .gitignore
 
 # OS
 .DS_Store
 Thumbs.db
 
-# Docs generated
-docs/*.pdf
+# Editor
+.vscode/
+.idea/
+*.swp
+*~
 
-# Gradio
-flagged/
+# 安裝產物 (學員執行 install.ps1 後產生的暫存)
+*.bak_*
+*.auto.bak
 
-# Node modules (puppeteer for html-to-png is heavy, keep package*.json only)
-node_modules/
-docs/node_modules/
-
-# Claw runtime
-.claw/jobs/
-.claw/cache/
-*.log
-
-# Test cache
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-
-# Student zip is large (10MB+) and regenerated on demand; do not commit binary
-Claw_v*_學員版_*.zip
-# (keep 學員版_安裝說明.md and build_student_zip.py in repo — they're docs/scripts)
+# 本地暫存
+local_*
+.cache/
