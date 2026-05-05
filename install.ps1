@@ -77,64 +77,16 @@ function Show-About {
   Write-Host ""
 }
 
-$showBanner = $true
-$autoMode   = $true   # 預設啟用自動模式 (--dangerously-skip-permissions)
-$quickStart = $false  # 預設啟動前暫停讓使用者讀 banner
-$forwarded  = @()
-foreach ($a in $args) {
-  switch -Regex ($a) {
-    '^--no-banner$'         { $showBanner = $false; $quickStart = $true; continue }
-    '^--safe$'              { $autoMode = $false; continue }
-    '^--quick$|^--instant$' { $quickStart = $true; continue }
-    '^--about$'             { Show-About; exit 0 }
-    '^--setup-help$'        {
-      $help = Join-Path (Split-Path -Parent $MyInvocation.MyCommand.Path) 'setup-plugins.ps1'
-      if (Test-Path $help) { & $help } else { Write-Host "找不到 setup-plugins.ps1" -ForegroundColor Red }
-      exit 0
-    }
-    default                 { $forwarded += $a }
-  }
-}
-
-# 自動模式: 減少詢問、更多自主判斷
-if ($autoMode) {
-  $env:CLAUDE_CODE_NO_FLICKER = "1"
-  $forwarded = @('--dangerously-skip-permissions') + $forwarded
-}
-
-# 偵測是否非互動 (--version / --print 等)，這類不會進 alt-screen 不需要 pause
-$nonInteractive = $false
-foreach ($f in $forwarded) {
-  if ($f -match '^(-p|--print|-v|--version|-h|--help)$') { $nonInteractive = $true; break }
-}
-
-if ($showBanner) {
-  # 龍蝦色 ANSI truecolor (PS 7+ / 現代終端機支援)
+function Show-Cheatsheet {
   $e = [char]27
-  $LR  = "$e[38;2;230;75;55m"     # 龍蝦紅 (主色)
-  $LO  = "$e[38;2;255;144;112m"   # 龍蝦橙 (高光)
-  $LD  = "$e[38;2;160;40;30m"     # 龍蝦深紅 (陰影)
-  $W   = "$e[38;2;230;230;230m"   # 白
-  $G   = "$e[38;2;130;130;130m"   # 灰 (註解)
-  $Y   = "$e[38;2;255;220;100m"   # 黃 (作者/重點)
-  $M   = "$e[38;2;255;130;220m"   # 洋紅 (Codex)
-  $B   = "$e[38;2;130;200;255m"   # 藍 (Gemini)
-  $T   = "$e[38;2;100;230;200m"   # 青綠 (分隔線)
+  $LR  = "$e[38;2;230;75;55m";   $LO = "$e[38;2;255;144;112m"
+  $W   = "$e[38;2;230;230;230m"; $G  = "$e[38;2;130;130;130m"
+  $Y   = "$e[38;2;255;220;100m"; $M  = "$e[38;2;255;130;220m"
+  $B   = "$e[38;2;130;200;255m"; $T  = "$e[38;2;100;230;200m"
   $RST = "$e[0m"
+  $div = "    ${G}─────────────────────────────────────────────────────────────${RST}"
 
   Write-Host ""
-  Write-Host "    $LR██████╗██╗      █████╗ ██╗    ██╗$RST       $LO🦞 🦞 🦞$RST"
-  Write-Host "   $LR██╔════╝██║     ██╔══██╗██║    ██║$RST        $LO🦞 🦞$RST"
-  Write-Host "   $LR██║     ██║     ███████║██║ █╗ ██║$RST        $LO🦞 🦞$RST       $Y v3.0$RST"
-  Write-Host "   $LR██║     ██║     ██╔══██║██║███╗██║$RST        $LO🦞 🦞$RST       $W Claude × Codex × Gemini$RST"
-  Write-Host "   $LR╚██████╗███████╗██║  ██║╚███╔███╔╝$RST         $LO🦞$RST         $G in-session delegation$RST"
-  Write-Host "    $LR╚═════╝╚══════╝╚═╝  ╚═╝ ╚══╝╚══╝$RST          $LO🦞$RST"
-  Write-Host ""
-  Write-Host "    $Y by 阿亮老師（曾慶良 主任）$RST"
-  Write-Host "       $G 新興科技推廣中心主任 · 教育部學科中心研究教師 · 臺北市資訊教育輔導員$RST"
-  Write-Host "       $G YouTube: @Liang-yt02  ·  Email: 3a01chatgpt@gmail.com$RST"
-  Write-Host ""
-  $div = "    ${G}─────────────────────────────────────────────────────────────${RST}"
   Write-Host "    $T╔═════════════════════ 📋 使用說明 ═════════════════════════╗$RST"
   Write-Host ""
   Write-Host "    $Y🌟 最簡單用法${RST}  $G(0 學習成本，推薦學員)${RST}"
@@ -184,13 +136,79 @@ if ($showBanner) {
   Write-Host $div
   Write-Host ""
   Write-Host "    $W❓ 啟動器選項${RST}"
-  Write-Host "       ${W}claw --about${RST}          ${G}完整作者資訊 (職務/獎項/聯絡)${RST}"
-  Write-Host "       ${W}claw --setup-help${RST}     ${G}plugin 安裝指引${RST}"
-  Write-Host "       ${W}claw --no-banner${RST}      ${G}跳過此 banner 啟動${RST}"
+  Write-Host "       ${W}claw${RST}                  ${G}啟動 Claude (含 banner + 等按鍵)${RST}"
+  Write-Host "       ${W}claw --quick${RST}          ${G}啟動但不等按鍵 (秒進)${RST}"
+  Write-Host "       ${W}claw --no-banner${RST}      ${G}沒 banner 直接進${RST}"
   Write-Host "       ${W}claw --safe${RST}           ${G}關閉自動模式 (改回每件事都問你)${RST}"
+  Write-Host "       ${W}claw --about${RST}          ${G}完整作者資訊 (職務/獎項/聯絡)${RST}"
+  Write-Host "       ${W}claw --cheat${RST}          ${G}只看本使用說明 (進 claude 後可 !claw --cheat)${RST}"
+  Write-Host "       ${W}claw --setup-help${RST}     ${G}plugin 安裝指引${RST}"
   Write-Host ""
   Write-Host "    $T╚═══════════════════════════════════════════════════════════╝$RST"
   Write-Host ""
+  Write-Host "    ${G}💡 進 claude 後想再看一次? 輸入${RST} ${Y}!claw --cheat${RST}"
+  Write-Host ""
+}
+
+$showBanner = $true
+$autoMode   = $true   # 預設啟用自動模式 (--dangerously-skip-permissions)
+$quickStart = $false  # 預設啟動前暫停讓使用者讀 banner
+$forwarded  = @()
+foreach ($a in $args) {
+  switch -Regex ($a) {
+    '^--no-banner$'         { $showBanner = $false; $quickStart = $true; continue }
+    '^--safe$'              { $autoMode = $false; continue }
+    '^--quick$|^--instant$' { $quickStart = $true; continue }
+    '^--about$'             { Show-About; exit 0 }
+    '^--cheat$|^--cheatsheet$|^--commands$|^--help-cmd$' { Show-Cheatsheet; exit 0 }
+    '^--setup-help$'        {
+      $help = Join-Path (Split-Path -Parent $MyInvocation.MyCommand.Path) 'setup-plugins.ps1'
+      if (Test-Path $help) { & $help } else { Write-Host "找不到 setup-plugins.ps1" -ForegroundColor Red }
+      exit 0
+    }
+    default                 { $forwarded += $a }
+  }
+}
+
+# 自動模式: 減少詢問、更多自主判斷
+if ($autoMode) {
+  $env:CLAUDE_CODE_NO_FLICKER = "1"
+  $forwarded = @('--dangerously-skip-permissions') + $forwarded
+}
+
+# 偵測是否非互動 (--version / --print 等)，這類不會進 alt-screen 不需要 pause
+$nonInteractive = $false
+foreach ($f in $forwarded) {
+  if ($f -match '^(-p|--print|-v|--version|-h|--help)$') { $nonInteractive = $true; break }
+}
+
+if ($showBanner) {
+  # 龍蝦色 ANSI truecolor (PS 7+ / 現代終端機支援)
+  $e = [char]27
+  $LR  = "$e[38;2;230;75;55m"     # 龍蝦紅 (主色)
+  $LO  = "$e[38;2;255;144;112m"   # 龍蝦橙 (高光)
+  $LD  = "$e[38;2;160;40;30m"     # 龍蝦深紅 (陰影)
+  $W   = "$e[38;2;230;230;230m"   # 白
+  $G   = "$e[38;2;130;130;130m"   # 灰 (註解)
+  $Y   = "$e[38;2;255;220;100m"   # 黃 (作者/重點)
+  $M   = "$e[38;2;255;130;220m"   # 洋紅 (Codex)
+  $B   = "$e[38;2;130;200;255m"   # 藍 (Gemini)
+  $T   = "$e[38;2;100;230;200m"   # 青綠 (分隔線)
+  $RST = "$e[0m"
+
+  Write-Host ""
+  Write-Host "    $LR██████╗██╗      █████╗ ██╗    ██╗$RST       $LO🦞 🦞 🦞$RST"
+  Write-Host "   $LR██╔════╝██║     ██╔══██╗██║    ██║$RST        $LO🦞 🦞$RST"
+  Write-Host "   $LR██║     ██║     ███████║██║ █╗ ██║$RST        $LO🦞 🦞$RST       $Y v3.0$RST"
+  Write-Host "   $LR██║     ██║     ██╔══██║██║███╗██║$RST        $LO🦞 🦞$RST       $W Claude × Codex × Gemini$RST"
+  Write-Host "   $LR╚██████╗███████╗██║  ██║╚███╔███╔╝$RST         $LO🦞$RST         $G in-session delegation$RST"
+  Write-Host "    $LR╚═════╝╚══════╝╚═╝  ╚═╝ ╚══╝╚══╝$RST          $LO🦞$RST"
+  Write-Host ""
+  Write-Host "    $Y by 阿亮老師（曾慶良 主任）$RST"
+  Write-Host "       $G 新興科技推廣中心主任 · 教育部學科中心研究教師 · 臺北市資訊教育輔導員$RST"
+  Write-Host "       $G YouTube: @Liang-yt02  ·  Email: 3a01chatgpt@gmail.com$RST"
+  Write-Host ""
+  Show-Cheatsheet
   Write-Host "    ${LO}🦞 自動模式啟用中${RST}  $G(--dangerously-skip-permissions, --safe 可關)${RST}"
   Write-Host ""
 }
