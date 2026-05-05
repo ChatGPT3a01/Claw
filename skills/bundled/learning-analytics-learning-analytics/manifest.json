@@ -1,0 +1,17 @@
+{
+  "name": "learning-analytics-learning-analytics",
+  "displayName": "學習分析技術 (Learning Analytics)",
+  "version": "1.0.0",
+  "description": "運用數據分析技術收集、分析與詮釋學生學習歷程數據，以優化教學決策、預測學習成效、提供個人化學習支援。",
+  "author": "Liang Tseng",
+  "tags": [
+    "learning-analytics",
+    "education",
+    "ai",
+    "prompt"
+  ],
+  "commands": [
+    "/learning-analytics-learning-analytics",
+    "學習分析技術 (Learning Analytics)"
+  ]
+}

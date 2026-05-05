@@ -1,0 +1,17 @@
+{
+  "name": "ai-tools-ai-teaching-tools",
+  "displayName": "AI 教學工具全覽 (AI Teaching Tools Overview)",
+  "version": "1.0.0",
+  "description": "整理教育領域常用的各類 AI 工具，協助教師選擇適合的工具，並提供教學應用的最佳實踐。",
+  "author": "Liang Tseng",
+  "tags": [
+    "ai-tools",
+    "education",
+    "ai",
+    "prompt"
+  ],
+  "commands": [
+    "/ai-tools-ai-teaching-tools",
+    "AI 教學工具全覽 (AI Teaching Tools Overview)"
+  ]
+}

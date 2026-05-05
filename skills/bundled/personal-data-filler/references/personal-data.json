@@ -1,0 +1,23 @@
+{
+  "name": "曾慶良",
+  "zh_name": "曾慶良",
+  "en_name": "Tseng Ching-Liang",
+  "phone": "0981737608",
+  "address": "新北市中和區崇南里14鄰忠孝街126-3號1樓",
+  "id_number": "F123614400",
+  "birthday": "民國64年2月7日",
+  "gender": "男",
+  "id_issued_date": "民國112年5月8日",
+  "birthplace": "臺灣省桃園縣",
+  "father_name": "曾淑住",
+  "mother_name": "黃美秀",
+  "service_unit": "新興科技推廣中心(永春高中)",
+  "position": "主任",
+  "bank_name": "永豐銀行 永春分行",
+  "bank_code": "8071376",
+  "account_number": "13700400225014",
+  "account_holder": "曾慶良",
+  "signature": "signature.png",
+  "id_card_front": "id-card/身分證正本.jpg",
+  "id_card_back": "id-card/身分證背面.jpg"
+}

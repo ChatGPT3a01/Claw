@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>自己架設 AI — 零基礎到大師｜教師手冊</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Marked.js - Markdown 渲染 -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <!-- Highlight.js - 程式碼高亮 -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/atom-one-light.min.css">
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/languages/python.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/languages/bash.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/languages/json.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/languages/javascript.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/languages/xml.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/languages/css.min.js"></script>
+  <!-- 單元資料 -->
+  <script src="data/units.js"></script>
+</head>
+<body>
+
+  <!-- 頂部標題列 -->
+  <header class="site-header">
+    <button class="menu-toggle" id="menuToggle" aria-label="開啟選單">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="header-content">
+      <h1 class="site-title">自己架設 AI — 零基礎到大師</h1>
+      <p class="site-subtitle">教師手冊</p>
+    </div>
+    <div class="header-actions">
+      <a href="https://www.youtube.com/@Liang-yt02" target="_blank" rel="noopener" class="header-btn" title="YouTube 頻道">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+        <span class="btn-label">YouTube</span>
+      </a>
+      <a href="https://www.facebook.com/groups/2754139931432955" target="_blank" rel="noopener" class="header-btn" title="3A 科技研究社（Facebook）">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+        <span class="btn-label">3A 社群</span>
+      </a>
+      <a href="mailto:3a01chatgpt@gmail.com" class="header-btn" title="Email 聯繫">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+        <span class="btn-label">Email</span>
+      </a>
+      <button class="header-btn" id="fullscreenBtn" title="全螢幕切換">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" id="fullscreenIcon">
+          <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>
+        </svg>
+        <span class="btn-label">全螢幕</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="main-layout">
+
+    <!-- 左側導覽 -->
+    <nav class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <h2>單元目錄</h2>
+      </div>
+      <ul class="nav-list" id="navList">
+        <!-- 由 JS 動態產生 -->
+      </ul>
+      <!-- 側邊欄底部設定 -->
+      <div class="sidebar-footer">
+        <button class="settings-btn" id="settingsBtn" title="設定">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.488.488 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+          <span>設定</span>
+        </button>
+      </div>
+    </nav>
+
+    <!-- 側邊欄拖拉把手 -->
+    <div class="sidebar-resizer" id="sidebarResizer"></div>
+
+    <!-- 設定面板 -->
+    <div class="settings-panel" id="settingsPanel">
+      <div class="settings-panel-header">
+        <h3>設定</h3>
+        <button class="settings-close" id="settingsClose" aria-label="關閉設定">&times;</button>
+      </div>
+      <div class="settings-panel-body">
+        <div class="settings-group">
+          <label class="settings-label">文字大小</label>
+          <div class="settings-options" id="fontSizeOptions">
+            <button class="settings-option" data-size="medium">適中</button>
+            <button class="settings-option active" data-size="large">大</button>
+            <button class="settings-option" data-size="xlarge">超大</button>
+          </div>
+        </div>
+        <div class="settings-group">
+          <label class="settings-label">色彩風格</label>
+          <div class="theme-grid" id="themeOptions">
+            <button class="theme-card active" data-theme="warm">
+              <div class="theme-preview">
+                <span class="tp-bar" style="background:#5C3D2E"></span>
+                <span class="tp-bar" style="background:#F5E6D3"></span>
+                <span class="tp-bar" style="background:#D4A574"></span>
+                <span class="tp-bar" style="background:#E8976B"></span>
+              </div>
+              <span class="theme-name">暖棕奶茶</span>
+            </button>
+            <button class="theme-card" data-theme="ocean">
+              <div class="theme-preview">
+                <span class="tp-bar" style="background:#1B3A4B"></span>
+                <span class="tp-bar" style="background:#E8ECF1"></span>
+                <span class="tp-bar" style="background:#5B7FA5"></span>
+                <span class="tp-bar" style="background:#4A90D9"></span>
+              </div>
+              <span class="theme-name">冷靜海洋</span>
+            </button>
+            <button class="theme-card" data-theme="forest">
+              <div class="theme-preview">
+                <span class="tp-bar" style="background:#2E3D1F"></span>
+                <span class="tp-bar" style="background:#E0EDD3"></span>
+                <span class="tp-bar" style="background:#6B9B5A"></span>
+                <span class="tp-bar" style="background:#8BC34A"></span>
+              </div>
+              <span class="theme-name">森林自然</span>
+            </button>
+            <button class="theme-card" data-theme="sakura">
+              <div class="theme-preview">
+                <span class="tp-bar" style="background:#5C2D33"></span>
+                <span class="tp-bar" style="background:#FFE4E4"></span>
+                <span class="tp-bar" style="background:#D4838A"></span>
+                <span class="tp-bar" style="background:#E8636B"></span>
+              </div>
+              <span class="theme-name">櫻花粉柔</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 遮罩層（手機版 & 設定面板） -->
+    <div class="overlay" id="overlay"></div>
+
+    <!-- 中央內容區 -->
+    <main class="content" id="content">
+      <div class="content-inner" id="contentInner">
+        <div class="welcome-screen">
+          <h2>歡迎使用教師手冊</h2>
+          <p>請從左側選單選擇單元開始閱讀</p>
+        </div>
+      </div>
+    </main>
+
+  </div>
+
+  <!-- 底部作者資訊 -->
+  <footer class="site-footer">
+
+    <!-- 第一層：作者介紹 -->
+    <div class="footer-author">
+      <div class="footer-inner">
+        <div class="author-card">
+          <div class="author-photo">
+            <img src="assets/作者資訊.png" alt="阿亮老師（曾慶良主任）作者資訊" loading="lazy">
+          </div>
+          <div class="author-info">
+            <h3>曾慶良 主任（阿亮老師）</h3>
+            <div class="author-positions">
+              <span class="position-tag">新興科技推廣中心主任</span>
+              <span class="position-tag">教育部學科中心研究教師</span>
+              <span class="position-tag">臺北市資訊教育輔導員</span>
+            </div>
+            <div class="author-awards">
+              <h4>獲獎紀錄</h4>
+              <ul>
+                <li>2025 年 SETEAM 教學專業講師認證</li>
+                <li>2024 年 教育部人工智慧講師認證</li>
+                <li>2022、2023 年 指導學生 XR 專題競賽特優</li>
+                <li>2022 年 VR 教材開發教師組特優</li>
+                <li>2019 年 百大資訊人才獎</li>
+                <li>2018、2019 年 親子天下創新 100 教師</li>
+                <li>2018 年 臺北市特殊優良教師</li>
+                <li>2017 年 教育部行動學習優等</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 第二層：社群連結 -->
+    <div class="footer-links">
+      <div class="footer-inner">
+        <a href="https://www.youtube.com/@Liang-yt02" target="_blank" rel="noopener" class="social-btn youtube">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+          YouTube 頻道
+        </a>
+        <a href="https://www.facebook.com/groups/2754139931432955" target="_blank" rel="noopener" class="social-btn facebook">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+          3A 科技研究社
+        </a>
+        <a href="mailto:3a01chatgpt@gmail.com" class="social-btn email">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+          Email 聯繫
+        </a>
+      </div>
+    </div>
+
+    <!-- 第三層：授權聲明 -->
+    <div class="footer-license">
+      <div class="footer-inner">
+        <p>&copy; 2026 阿亮老師 版權所有</p>
+        <p class="license-detail">
+          本專案僅供「阿亮老師課程學員」學習使用。禁止修改、轉傳、散布、商業使用及未經授權之任何形式使用。
+        </p>
+      </div>
+    </div>
+
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

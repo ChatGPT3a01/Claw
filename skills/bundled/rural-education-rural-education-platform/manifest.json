@@ -1,0 +1,17 @@
+{
+  "name": "rural-education-rural-education-platform",
+  "displayName": "偏鄉教育平台設計 (Rural Education Platform Design)",
+  "version": "1.0.0",
+  "description": "針對偏鄉地區的基礎設施限制、師資人力不足、學生背景多元等特殊需求，設計適切的數位學習平台與解決方案。",
+  "author": "Liang Tseng",
+  "tags": [
+    "rural-education",
+    "education",
+    "ai",
+    "prompt"
+  ],
+  "commands": [
+    "/rural-education-rural-education-platform",
+    "偏鄉教育平台設計 (Rural Education Platform Design)"
+  ]
+}

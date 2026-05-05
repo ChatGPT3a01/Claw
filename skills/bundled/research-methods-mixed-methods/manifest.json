@@ -1,0 +1,17 @@
+{
+  "name": "research-methods-mixed-methods",
+  "displayName": "混合研究方法 (Mixed Methods Research)",
+  "version": "1.0.0",
+  "description": "整合量化與質性研究方法，發揮兩種方法的優勢，對複雜的教育現象進行更全面深入的探究。",
+  "author": "Liang Tseng",
+  "tags": [
+    "research-methods",
+    "education",
+    "ai",
+    "prompt"
+  ],
+  "commands": [
+    "/research-methods-mixed-methods",
+    "混合研究方法 (Mixed Methods Research)"
+  ]
+}

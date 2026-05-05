@@ -1,0 +1,107 @@
+{
+  "paths": {
+    "obsidian_vault": "~/ObsidianVault",
+    "paper_notes_folder": "論文筆記",
+    "daily_papers_folder": "DailyPapers",
+    "concepts_folder": "_概念",
+    "artifacts_folder": "artifacts",
+    "history_file": ".history.json"
+  },
+  "daily_papers": {
+    "keywords": ["transformer", "diffusion model", "LLM", "large language model", "multimodal", "RAG", "agent"],
+    "negative_keywords": ["medical imaging", "weather forecast", "protein folding"],
+    "domain_boost_keywords": ["education", "teaching", "learning analytics"],
+    "arxiv_categories": ["cs.AI", "cs.LG", "cs.CL", "cs.CV", "cs.IR"],
+    "min_score": 2,
+    "top_n": 30,
+    "since_days": 1,
+    "include_taiwan_theses": true,
+    "dedup_window_days": 30
+  },
+  "taiwan": {
+    "enabled": true,
+    "ndltd_opendata": {
+      "enabled": true,
+      "base_url": "https://ndltd.ncl.edu.tw/opendata/",
+      "years_range": [102, 112],
+      "cache_dir": "~/.cache/auto-research-claw/ndltd"
+    },
+    "ndltd_web": {
+      "enabled": true,
+      "base_url": "https://ndltd.ncl.edu.tw",
+      "search_fields": ["ti", "kw", "ab"],
+      "max_results": 50
+    },
+    "institutional_repositories": {
+      "enabled": true,
+      "endpoints": {
+        "臺灣大學": "https://tdr.lib.ntu.edu.tw/oai/request",
+        "清華大學": "https://etd.lib.nthu.edu.tw/oai/request",
+        "成功大學": "https://etds.lib.ncku.edu.tw/oai/request",
+        "陽明交通大學": "https://etd.lib.nycu.edu.tw/oai/request",
+        "政治大學": "https://thesis.lib.nccu.edu.tw/oai/request",
+        "中央大學": "https://ir.lib.ncu.edu.tw/oai/request",
+        "中山大學": "https://etd.lib.nsysu.edu.tw/oai/request",
+        "臺灣師範大學": "https://etds.lib.ntnu.edu.tw/oai/request"
+      },
+      "preferred_schools": []
+    },
+    "crossref": {
+      "enabled": true,
+      "doi_prefix_tw": "10.6342",
+      "mailto": ""
+    },
+    "keywords_zh": ["深度學習", "自然語言處理", "電腦視覺", "機器學習", "人工智慧"],
+    "degree_filter": ["碩士", "博士"],
+    "bonus_score": 2,
+    "top_school_bonus": 1,
+    "top_schools": ["臺灣大學", "清華大學", "陽明交通大學", "成功大學", "政治大學", "臺灣科技大學", "中央大學", "中山大學", "臺灣師範大學"]
+  },
+  "deep_research": {
+    "experiment_mode": "sandbox",
+    "auto_approve": false,
+    "max_pivot": 2,
+    "max_iterative_refine": 10,
+    "paper_format": "apa",
+    "paper_format_options": {
+      "neurips": "NeurIPS 會議格式（數字引用 [1][2]，5000-6500 字）",
+      "icml": "ICML 會議格式（數字引用，5000-6500 字）",
+      "iclr": "ICLR 會議格式（數字引用，5000-6500 字）",
+      "apa": "APA 第七版完整版（碩博論文格式，15000-25000 字，中英文引用）",
+      "apa_journal": "APA 第七版精簡版（期刊投稿，8000-12000 字）"
+    },
+    "citation_verify": true,
+    "include_taiwan_literature": true
+  },
+  "paper_reader": {
+    "default_mode": "full",
+    "min_note_lines": 120,
+    "min_formulas": 2,
+    "min_images": 1,
+    "max_retry": 3
+  },
+  "llm": {
+    "provider": "openai_compatible",
+    "model": "deepseek-chat",
+    "base_url": "https://api.deepseek.com",
+    "api_key_env": "OPENAI_API_KEY",
+    "fallback_models": ["gpt-4o", "gpt-5.4"],
+    "max_tokens": 16384,
+    "temperature": 0.3
+  },
+  "notification": {
+    "email": {
+      "enabled": false,
+      "smtp_server": "smtp.gmail.com",
+      "smtp_port": 587,
+      "sender": "",
+      "recipients": [],
+      "password_env": "SMTP_PASSWORD"
+    }
+  },
+  "automation": {
+    "auto_refresh_moc": true,
+    "git_commit": false,
+    "git_push": false
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "name": "teaching-design-sel-activity-designer",
+  "displayName": "SEL 教學活動設計 (Social-Emotional Learning Activity Designer)",
+  "version": "1.0.0",
+  "description": "基於 CASEL 架構與控制價值理論（CVT），協助教師設計融入課堂的社會情緒學習（SEL）活動，培養學生的自我覺察、自我管理、社會覺察、人際技巧與負責任決策能力，同時提升學習成效與情緒調節能力。",
+  "author": "Liang Tseng",
+  "tags": [
+    "teaching-design",
+    "education",
+    "ai",
+    "prompt"
+  ],
+  "commands": [
+    "/teaching-design-sel-activity-designer",
+    "SEL 教學活動設計 (Social-Emotional Learning Activity Designer)"
+  ]
+}

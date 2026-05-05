@@ -1,0 +1,21 @@
+# AutoResearchClaw — Python 依賴
+# 安裝：pip install -r requirements.txt
+
+# === 必要依賴 ===
+pyyaml>=6.0          # YAML 解析（prompts.yaml）
+rich>=13.0           # 美化終端輸出
+httpx>=0.25          # HTTP 客戶端（API 呼叫）
+
+# === Mode A/T 常用 ===
+# （標準庫 urllib 已足夠基本功能，以下為進階用途）
+arxiv>=2.0           # arXiv API 客戶端（可選，目前用 urllib）
+
+# === Mode B 深度研究 ===
+numpy>=1.24          # 數值計算（實驗用）
+
+# === 可選依賴 ===
+# scholarly           # Google Scholar 搜尋
+# PyMuPDF             # PDF 全文萃取
+# matplotlib          # 圖表生成
+# beautifulsoup4      # Web Scraping
+# lxml                # OAI-PMH XML 解析加速

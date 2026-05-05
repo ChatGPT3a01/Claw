@@ -1,0 +1,17 @@
+{
+  "name": "ict-integration-ict-integration",
+  "displayName": "ICT 融入教學 (ICT Integration in Education)",
+  "version": "1.0.0",
+  "description": "系統性地將資訊與通訊科技 (ICT) 融入各學科教學，提升學習效果、培養學生數位素養，並因應不同教學情境選擇適切的科技工具。",
+  "author": "Liang Tseng",
+  "tags": [
+    "ict-integration",
+    "education",
+    "ai",
+    "prompt"
+  ],
+  "commands": [
+    "/ict-integration-ict-integration",
+    "ICT 融入教學 (ICT Integration in Education)"
+  ]
+}

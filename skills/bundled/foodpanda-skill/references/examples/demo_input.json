@@ -1,0 +1,74 @@
+{
+  "demo_cases": [
+    {
+      "name": "Case 1: 兩人平價晚餐",
+      "input": {
+        "location": "新北市板橋區",
+        "budget": 300,
+        "meal_time": "dinner",
+        "category": ["便當"],
+        "avoid": ["炸物"],
+        "people": 2,
+        "drink": false,
+        "fast_delivery": true,
+        "chain_ok": true
+      }
+    },
+    {
+      "name": "Case 2: 一人健康午餐",
+      "input": {
+        "location": "新北市板橋區",
+        "budget": 200,
+        "meal_time": "lunch",
+        "category": ["健康餐", "輕食"],
+        "avoid": ["炸物", "辣"],
+        "people": 1,
+        "drink": true,
+        "fast_delivery": false,
+        "chain_ok": true
+      }
+    },
+    {
+      "name": "Case 3: 團隊下午茶飲料",
+      "input": {
+        "location": "新北市板橋區",
+        "budget": 400,
+        "meal_time": "afternoon_tea",
+        "category": ["飲料"],
+        "avoid": [],
+        "people": 5,
+        "drink": true,
+        "fast_delivery": true,
+        "chain_ok": true
+      }
+    },
+    {
+      "name": "Case 4: 深夜宵夜",
+      "input": {
+        "location": "新北市板橋區",
+        "budget": 200,
+        "meal_time": "late_night",
+        "category": ["麵類", "宵夜"],
+        "avoid": [],
+        "people": 1,
+        "drink": false,
+        "fast_delivery": true,
+        "chain_ok": false
+      }
+    },
+    {
+      "name": "Case 5: 素食者午餐",
+      "input": {
+        "location": "新北市板橋區",
+        "budget": 150,
+        "meal_time": "lunch",
+        "category": ["素食"],
+        "avoid": ["辣", "炸物"],
+        "people": 1,
+        "drink": true,
+        "fast_delivery": true,
+        "chain_ok": true
+      }
+    }
+  ]
+}

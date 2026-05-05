@@ -1,0 +1,17 @@
+{
+  "name": "rural-education-localized-content-design",
+  "displayName": "在地化內容設計 (Localized Content Design)",
+  "version": "1.0.0",
+  "description": "設計符合偏鄉學生文化背景、語言習慣與生活經驗的學習內容，將全球化的知識與在地脈絡相連結，提升學習意義感與參與度。",
+  "author": "Liang Tseng",
+  "tags": [
+    "rural-education",
+    "education",
+    "ai",
+    "prompt"
+  ],
+  "commands": [
+    "/rural-education-localized-content-design",
+    "在地化內容設計 (Localized Content Design)"
+  ]
+}
