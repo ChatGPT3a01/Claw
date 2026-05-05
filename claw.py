@@ -48,7 +48,9 @@ from src.core.cli_router import (
 
 
 __version__ = "2.0.0"
-console = Console()
+# 強制 truecolor：cmd.exe 預設只支援 16 色，會把 RGB 降級成淺色
+# force_terminal=True 確保即使 stdout 重導向也保留色彩
+console = Console(color_system="truecolor", force_terminal=True, legacy_windows=False)
 
 
 # ---------- Banner ----------
@@ -182,16 +184,16 @@ def render_job(job: JobResult) -> None:
     if job.stdout:
         body_parts.append(job.stdout.strip())
     if job.stderr and job.status != "completed":
-        body_parts.append(f"[red]stderr:[/red]\n{job.stderr.strip()}")
+        body_parts.append(f"[bold #b71c1c]stderr:[/bold #b71c1c]\n{job.stderr.strip()}")
     if not body_parts:
-        body_parts.append("[dim](no output yet)[/dim]")
+        body_parts.append("[bold #1a1a1a](no output yet)[/bold #1a1a1a]")
 
     console.print(Panel("\n\n".join(body_parts), title=title, border_style=color))
 
 
 def render_jobs(jobs: list[JobResult]) -> None:
     if not jobs:
-        console.print("[dim]沒有任務紀錄[/dim]")
+        console.print("[bold #1a1a1a]沒有任務紀錄[/bold #1a1a1a]")
         return
     table = Table(show_header=True, header_style="bold magenta", padding=(0, 1))
     table.add_column("Job ID", style="cyan")
@@ -211,7 +213,12 @@ DEFAULT_ENGINE = "cld"  # 啟動預設主引擎
 
 
 def _engine_color(engine: str) -> str:
-    return {"cld": "cyan", "gld": "green", "cod": "yellow"}.get(engine, "white")
+    """主引擎對應深飽和色（亮/暗終端皆清晰）。"""
+    return {
+        "cld": "#0d47a1",   # Claude 深藍
+        "gld": "#1b5e20",   # Gemini 深綠
+        "cod": "#b71c1c",   # Codex 深紅
+    }.get(engine, "#1a1a1a")
 
 
 def repl() -> None:
@@ -222,24 +229,32 @@ def repl() -> None:
 
     current_engine = DEFAULT_ENGINE
     console.print(
-        f"[bold default]目前主引擎：[bold {_engine_color(current_engine)}]{current_engine.upper()}[/bold {_engine_color(current_engine)}][/bold default] — "
-        f"[bold default]直接輸入文字會送到主引擎，用[/bold default] [bold yellow]/use cld|gld|cod[/bold yellow] [bold default]切換，"
-        f"或用[/bold default] [bold yellow]/cld /gld /cod[/bold yellow] [bold default]一次性指定。[/bold default]\n"
+        f"[bold #1a1a1a]目前主引擎：[bold {_engine_color(current_engine)}]{current_engine.upper()}"
+        f"[/bold {_engine_color(current_engine)}][/bold #1a1a1a] [bold #1a1a1a]—[/bold #1a1a1a] "
+        f"[bold #1a1a1a]直接輸入文字會送到主引擎，用[/bold #1a1a1a] "
+        f"[bold #e65100]/use cld|gld|cod[/bold #e65100] "
+        f"[bold #1a1a1a]切換，或用[/bold #1a1a1a] "
+        f"[bold #e65100]/cld /gld /cod[/bold #e65100] "
+        f"[bold #1a1a1a]一次性指定。[/bold #1a1a1a]\n"
     )
 
     while True:
-        prompt_label = f"[bold {_engine_color(current_engine)}]claw·{current_engine}[/bold {_engine_color(current_engine)}]"
+        # prompt 用「白字 + 深色背景」確保最高對比度（任何終端都清楚）
+        prompt_label = (
+            f"[bold white on {_engine_color(current_engine)}] claw·{current_engine} "
+            f"[/bold white on {_engine_color(current_engine)}]"
+        )
         try:
             line = Prompt.ask(prompt_label).strip()
         except (KeyboardInterrupt, EOFError):
-            console.print("\n[dim]再見！[/dim]")
+            console.print("\n[bold #1a1a1a]再見！[/bold #1a1a1a]")
             return
 
         if not line:
             continue
 
         if line in ("/quit", "/exit", ":q", "exit", "quit"):
-            console.print("[dim]再見！[/dim]")
+            console.print("[bold #1a1a1a]再見！[/bold #1a1a1a]")
             return
 
         if line == "/help":
@@ -263,12 +278,13 @@ def repl() -> None:
             parts = line.split(maxsplit=1)
             if len(parts) < 2 or parts[1].strip() not in ("cld", "gld", "cod"):
                 console.print(
-                    "[yellow]用法：/use cld | /use gld | /use cod[/yellow]"
+                    "[bold #e65100]用法：/use cld | /use gld | /use cod[/bold #e65100]"
                 )
                 continue
             current_engine = parts[1].strip()
             console.print(
-                f"[green]✓ 主引擎已切換為 [bold {_engine_color(current_engine)}]{current_engine.upper()}[/bold {_engine_color(current_engine)}][/green]"
+                f"[bold #1b5e20]✓ 主引擎已切換為[/bold #1b5e20] "
+                f"[bold {_engine_color(current_engine)}]{current_engine.upper()}[/bold {_engine_color(current_engine)}]"
             )
             continue
 
@@ -278,11 +294,11 @@ def repl() -> None:
 
         parsed = parse_slash(line)
         if parsed is None:
-            console.print(f"[red]無法解析指令：{line}[/red]")
-            console.print("[dim]輸入 /help 查看支援的指令[/dim]")
+            console.print(f"[bold #b71c1c]無法解析指令：{line}[/bold #b71c1c]")
+            console.print("[bold #1a1a1a]輸入 /help 查看支援的指令[/bold #1a1a1a]")
             continue
 
-        with console.status(f"[cyan]{parsed.engine.upper()} 處理中…[/cyan]", spinner="dots"):
+        with console.status(f"[bold #0d47a1]{parsed.engine.upper()} 處理中…[/bold #0d47a1]", spinner="dots"):
             result = dispatch(parsed)
 
         if isinstance(result, JobResult):
@@ -296,7 +312,7 @@ def repl() -> None:
 def _show_skills() -> None:
     skills_dir = ROOT / "skills" / "bundled"
     if not skills_dir.exists():
-        console.print("[yellow]找不到 skills/bundled 目錄[/yellow]")
+        console.print("[bold #e65100]找不到 skills/bundled 目錄[/bold #e65100]")
         return
     skills = sorted([p.name for p in skills_dir.iterdir() if p.is_dir()])
     table = Table(title=f"可用技能 ({len(skills)})", show_header=False, padding=(0, 2))
@@ -309,7 +325,7 @@ def _show_skills() -> None:
 
 
 def _launch_web() -> None:
-    console.print("[cyan]啟動 Web UI… (http://localhost:8000/chat)[/cyan]")
+    console.print("[bold #0d47a1]啟動 Web UI… (http://localhost:8000/chat)[/bold #0d47a1]")
     import subprocess
     subprocess.Popen([sys.executable, str(ROOT / "run.py")])
 
@@ -320,7 +336,7 @@ def one_shot(args: list[str]) -> int:
     line = " ".join(args)
     parsed = parse_slash(line)
     if parsed is None:
-        console.print(f"[red]無法解析指令：{line}[/red]")
+        console.print(f"[bold #b71c1c]無法解析指令：{line}[/bold #b71c1c]")
         return 2
     result = dispatch(parsed)
     if isinstance(result, JobResult):
