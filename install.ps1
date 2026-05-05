@@ -195,24 +195,22 @@ if ($showBanner) {
   Write-Host ""
 }
 
-# 啟動前暫停 (讓使用者來得及讀 banner，否則 claude alt-screen 會立刻清掉)
+# 啟動前等待按鍵 (讓使用者隨時讀完 banner 再進去, claude alt-screen 啟動後 banner 會被覆蓋)
 if ($showBanner -and -not $quickStart -and -not $nonInteractive) {
-  $e = [char]27; $G = "$e[38;2;130;130;130m"; $Y = "$e[38;2;255;220;100m"; $RST = "$e[0m"
-  $pauseSecs = 8
-  $skipped = $false
-  for ($i = $pauseSecs; $i -gt 0 -and -not $skipped; $i--) {
-    Write-Host -NoNewline "`r    ${G}按任意鍵立即啟動 claude  (${Y}${i}${G} 秒後自動啟動 · --quick 可跳過此暫停)         ${RST}"
-    $tickStart = [DateTime]::Now
-    while (([DateTime]::Now - $tickStart).TotalSeconds -lt 1) {
-      if ([Console]::KeyAvailable) {
-        [Console]::ReadKey($true) | Out-Null
-        $skipped = $true
-        break
-      }
-      Start-Sleep -Milliseconds 80
-    }
+  $e = [char]27
+  $G  = "$e[38;2;130;130;130m"
+  $Y  = "$e[38;2;255;220;100m"
+  $LO = "$e[38;2;255;144;112m"
+  $RST = "$e[0m"
+  Write-Host ""
+  Write-Host -NoNewline "    ${LO}🦞${RST}  ${Y}按空白鍵 (或任意鍵) 進入 claude${RST}   ${G}· Ctrl+C 取消 · --quick 可跳過此提示${RST} "
+  try {
+    [Console]::ReadKey($true) | Out-Null
+  } catch {
+    # 在沒有 console (e.g. 透過 pipe 啟動) 的情境直接放行
   }
-  Write-Host -NoNewline "`r    ${G}正在啟動 claude...                                                          ${RST}"
+  Write-Host ""
+  Write-Host "    ${G}正在啟動 claude...${RST}"
   Write-Host ""
 }
 
