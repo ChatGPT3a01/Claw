@@ -574,8 +574,11 @@
                     </div>
                 </div>
                 <div class="box tip" style="margin-top: 26px;">
-                    <strong>核心思想：</strong>不是「給你三家 AI」，而是「讓你只用一家、需要時請另外兩家幫忙」。<br>
-                    主場永遠是 Claude，Codex 與 Gemini 是隨叫隨到的顧問。
+                    <strong>🦞 集大成：</strong>把
+                    <span style="color:#C53A8B;font-weight:700;">OpenAI Codex</span> ×
+                    <span style="color:#4A7CD9;font-weight:700;">Google Gemini</span> ×
+                    <span style="color:#E64B37;font-weight:700;">Anthropic Claude</span>
+                    三家頂尖 AI 統合成一個無縫協作的指揮所 — <strong>這就是 Claw</strong>。
                 </div>
             </div>
         </div>
@@ -731,7 +734,167 @@ cd Claw
             </div>
         </div>
 
-        <!-- Slide 11: 自動模式 -->
+        <!-- Slide 11: 情境 1 - 雙視角審查 -->
+        <div class="slide">
+            <div class="content-card">
+                <h2>🔍 情境 1：程式碼雙視角審查</h2>
+                <p>寫完一段程式碼後，<strong>讓 Codex 和 Gemini 各自審一次</strong>，比對兩家意見：</p>
+                <pre><code><span style="color:#FFB3A7;">▸ 您：</span>幫我寫個費氏數列函式
+<span style="color:#FFB3A7;">▸ Claude：</span>[寫好程式碼]
+
+<span style="color:#FFB3A7;">▸ 您：</span>/codex:review
+<span style="color:#FFB3A7;">▸ Codex：</span>第 5 行可能整數溢位、缺邊界檢查...
+
+<span style="color:#FFB3A7;">▸ 您：</span>/gemini:review
+<span style="color:#FFB3A7;">▸ Gemini：</span>遞迴版本 O(2ⁿ)，建議改 memoization...
+
+<span style="color:#FFB3A7;">▸ 您：</span>整合兩家意見幫我改
+<span style="color:#FFB3A7;">▸ Claude：</span>[整合後的最終版本]</code></pre>
+                <div class="box info">
+                    <strong>為什麼有用？</strong>OpenAI（Codex）和 Google（Gemini）的訓練資料、安全偏好都不一樣，<strong>兩家視角能抓出彼此沒注意到的盲點</strong>。三家 AI 對同一份程式碼的分歧，往往就是值得思考的地方。
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 12: 情境 2 - 1M context -->
+        <div class="slide">
+            <div class="content-card">
+                <h2>📚 情境 2：1M context 看整個專案</h2>
+                <p>Gemini 的殺手級應用 — <strong>一次看完整個 codebase / 整本講義</strong>，這是 Claude / Codex 都做不到的。</p>
+                <h3>適合場景</h3>
+                <div class="concept-grid">
+                    <div class="concept-card">
+                        <h3>📖 整本講義審查</h3>
+                        <p style="font-size: 19px;">100 頁講義一次丟進去，找前後矛盾、重複內容、章節銜接問題。</p>
+                    </div>
+                    <div class="concept-card">
+                        <h3>🏗️ 整個 codebase 分析</h3>
+                        <p style="font-size: 19px;">讓 Gemini 看整個 React 專案，找出 anti-pattern、命名不一致、跨檔案耦合。</p>
+                    </div>
+                    <div class="concept-card">
+                        <h3>📄 大型 PDF 摘要</h3>
+                        <p style="font-size: 19px;">50 頁報告、學術論文，一次摘要重點、列出關鍵章節。</p>
+                    </div>
+                </div>
+                <div class="box tip">
+                    <strong>實際用法：</strong><br>
+                    <code style="font-size: 17px;">讓 Gemini 看 D:\我的講義 整個資料夾，找前後矛盾或重複內容</code>
+                </div>
+                <div class="box info">
+                    <strong>1M token 多大？</strong> 約 = 70 萬中文字 = 2000 頁文件 = 一本完整的程式書。
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 13: 情境 3 - 對抗式挑戰 -->
+        <div class="slide">
+            <div class="content-card">
+                <h2>⚔️ 情境 3：對抗式挑戰你的設計</h2>
+                <p><code>/codex:adversarial-review</code> 不是找 bug，是<strong>挑戰你的設計決策</strong>。</p>
+                <h3>它會做這些事</h3>
+                <ul>
+                    <li>❓ 質疑你選的架構 / 演算法 / 工具</li>
+                    <li>🚨 找出潛在的失敗模式（race condition、雪崩效應）</li>
+                    <li>💡 提出替代方案，並比較利弊</li>
+                    <li>🔍 點出你沒考慮到的 edge case</li>
+                </ul>
+                <h3>實例</h3>
+                <pre><code><span style="color:#FFB3A7;">▸ 您：</span>幫我設計一個快取系統
+<span style="color:#FFB3A7;">▸ Claude：</span>[設計用 LRU + Redis...]
+
+<span style="color:#FFB3A7;">▸ 您：</span>/codex:adversarial-review
+
+<span style="color:#FFB3A7;">▸ Codex 開始挑戰：</span>
+  「為什麼選 LRU 不選 LFU？」
+  「快取爆滿時的 fallback 是什麼？」
+  「並發寫入時會不會 race condition？」
+  「Redis 掛了怎麼辦？是否需要 multi-tier？」</code></pre>
+                <div class="box tip">
+                    <strong>什麼時候用？</strong>寫完重要設計、做完教學設計、實作前先找問題。比起問「對嗎？」，問「<strong>哪裡可能會壞？</strong>」更有價值。
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 14: 情境 4 - 背景委派 -->
+        <div class="slide">
+            <div class="content-card">
+                <h2>⚡ 情境 4：背景委派、邊做邊等</h2>
+                <p><code>--background</code> 旗標把長任務丟給 Codex / Gemini 跑，<strong>您繼續用 Claude 做別的事</strong>。</p>
+                <pre><code><span style="color:#FFB3A7;">▸ 您：</span>/codex:rescue --background 修這個 failing test
+<span style="color:#FFB3A7;">▸ Claude：</span>已派工 Codex 在背景跑 (job: cdx-abc123)
+
+<span style="color:#FFB3A7;">▸ 您：</span>（繼續用 Claude 寫教案、回 email、改文件...）
+
+<span style="color:#FFB3A7;">▸ 您：</span>/codex:status
+<span style="color:#FFB3A7;">▸ Claude：</span>Codex 還在跑，已花 3 分鐘
+
+<span style="color:#FFB3A7;">▸ 您：</span>（繼續做別的）
+
+<span style="color:#FFB3A7;">▸ 您：</span>/codex:result
+<span style="color:#FFB3A7;">▸ Claude：</span>Codex 修好了，patch 如下：[diff]</code></pre>
+                <h3>適合場景</h3>
+                <div class="concept-grid">
+                    <div class="concept-card">
+                        <h3>🍵 一邊備課一邊修 bug</h3>
+                        <p style="font-size: 18px;">Codex 修 bug 同時，您繼續寫教案不被打斷。</p>
+                    </div>
+                    <div class="concept-card">
+                        <h3>📋 一邊回信一邊審講義</h3>
+                        <p style="font-size: 18px;">Gemini 在背景審 100 頁講義，您手邊處理瑣事。</p>
+                    </div>
+                    <div class="concept-card">
+                        <h3>🔧 重構任務丟背景</h3>
+                        <p style="font-size: 18px;">大型重構交給 AI 跑，您去做需要創意的工作。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 15: 何時用誰？決策表 -->
+        <div class="slide">
+            <div class="content-card">
+                <h2>🎯 何時用誰？快速決策表</h2>
+                <p>把對的問題交給對的 AI，省 token 又精準：</p>
+                <table>
+                    <tr><th>想做什麼？</th><th>推薦</th><th>原因</th></tr>
+                    <tr>
+                        <td>一般對話、寫文件、寫程式</td>
+                        <td><span class="pill">🦞 Claude</span></td>
+                        <td>cache 命中、最便宜、有記憶</td>
+                    </tr>
+                    <tr>
+                        <td>程式碼審查（OpenAI 視角）</td>
+                        <td><span class="pill codex">/codex:review</span></td>
+                        <td>不同模型訓練、抓不同盲點</td>
+                    </tr>
+                    <tr>
+                        <td>整個專案 / 整本講義一次看</td>
+                        <td><span class="pill gemini">/gemini:review</span></td>
+                        <td>1M context 才裝得下</td>
+                    </tr>
+                    <tr>
+                        <td>挑戰你的設計決策</td>
+                        <td><span class="pill codex">/codex:adversarial-review</span></td>
+                        <td>OpenAI 擅長對抗式論述</td>
+                    </tr>
+                    <tr>
+                        <td>長時間任務、不想阻塞</td>
+                        <td><span class="pill">--background</span></td>
+                        <td>並行工作，邊做邊等</td>
+                    </tr>
+                    <tr>
+                        <td>不確定該用誰</td>
+                        <td><span class="pill">直接打字</span></td>
+                        <td>Claude 會自己幫你派工</td>
+                    </tr>
+                </table>
+                <div class="box tip">
+                    <strong>心法：</strong>不要過度切換。Claude 主場已經很強，<strong>遇到特定強項才叫顧問</strong>。日常 80% 工作直接打字就好。
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 16: 自動模式 -->
         <div class="slide">
             <div class="content-card">
                 <h2>🤖 自動模式（預設啟用）</h2>
