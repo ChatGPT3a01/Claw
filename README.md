@@ -87,13 +87,26 @@ $env:GOOGLE_API_KEY = "<key from AI Studio>"  # 或用 API key
 ### 啟動
 
 ```powershell
-claw                  # 開啟 Claude Code（含花俏 banner）
+claw                  # 開啟 Claude Code（含花俏 banner、預設自動模式）
 claw --no-banner      # 不顯示 banner
 claw --about          # 看作者資訊
 claw --setup-help     # 看 plugin 安裝指引
+claw --safe           # 關閉自動模式（每件事都問你）
 ```
 
-### 在 Claude 對話內可用的指令
+### 🌟 最簡單用法（推薦學員，0 學習成本）
+
+進入 claude 後，**直接用中文跟它說想做什麼**：
+
+```
+你：請 Codex 審查我剛寫的程式碼
+你：讓 Gemini 用 1M context 看整個專案
+你：派 Codex 修這個 bug
+```
+
+→ Claude 聽得懂、會自動派工，**完全不用記指令**。
+
+### 進階：在 Claude 對話內可用的指令
 
 | 指令 | 說明 |
 |---|---|
@@ -109,6 +122,18 @@ claw --setup-help     # 看 plugin 安裝指引
 支援 `--background`、`--base <ref>`、`--model <name>` 等 flag。完整文件：
 - Codex: https://github.com/openai/codex-plugin-cc
 - Gemini: https://github.com/abiswas97/gemini-plugin-cc
+
+### 🤖 自動模式（預設啟用）
+
+三家 AI 都預設走自動模式，減少詢問、自主判斷處理：
+
+| AI | 自動設定 | 等於 |
+|---|---|---|
+| **Claude** | `--dangerously-skip-permissions` + `CLAUDE_CODE_NO_FLICKER=1` | 跳過所有權限詢問 |
+| **Codex** | `~/.codex/config.toml` 寫入 `approval_policy="on-request"` `sandbox_mode="workspace-write"` | 相當於 `codex --full-auto` |
+| **Gemini** | `~/.gemini/settings.json` 寫入 `approvalMode="auto_edit"` | 自動允許編輯類工具 |
+
+不喜歡可以用 `claw --safe` 啟動，或手動編輯上述 config 檔案。
 
 ### MCP 按需切換（包在裡面送）
 
