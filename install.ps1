@@ -79,18 +79,20 @@ function Show-About {
 
 $showBanner = $true
 $autoMode   = $true   # 預設啟用自動模式 (--dangerously-skip-permissions)
+$quickStart = $false  # 預設啟動前暫停讓使用者讀 banner
 $forwarded  = @()
 foreach ($a in $args) {
   switch -Regex ($a) {
-    '^--no-banner$'    { $showBanner = $false; continue }
-    '^--safe$'         { $autoMode = $false; continue }
-    '^--about$'        { Show-About; exit 0 }
-    '^--setup-help$'   {
+    '^--no-banner$'         { $showBanner = $false; $quickStart = $true; continue }
+    '^--safe$'              { $autoMode = $false; continue }
+    '^--quick$|^--instant$' { $quickStart = $true; continue }
+    '^--about$'             { Show-About; exit 0 }
+    '^--setup-help$'        {
       $help = Join-Path (Split-Path -Parent $MyInvocation.MyCommand.Path) 'setup-plugins.ps1'
       if (Test-Path $help) { & $help } else { Write-Host "找不到 setup-plugins.ps1" -ForegroundColor Red }
       exit 0
     }
-    default            { $forwarded += $a }
+    default                 { $forwarded += $a }
   }
 }
 
@@ -98,6 +100,12 @@ foreach ($a in $args) {
 if ($autoMode) {
   $env:CLAUDE_CODE_NO_FLICKER = "1"
   $forwarded = @('--dangerously-skip-permissions') + $forwarded
+}
+
+# 偵測是否非互動 (--version / --print 等)，這類不會進 alt-screen 不需要 pause
+$nonInteractive = $false
+foreach ($f in $forwarded) {
+  if ($f -match '^(-p|--print|-v|--version|-h|--help)$') { $nonInteractive = $true; break }
 }
 
 if ($showBanner) {
@@ -184,7 +192,27 @@ if ($showBanner) {
   Write-Host "    $T╚═══════════════════════════════════════════════════════════╝$RST"
   Write-Host ""
   Write-Host "    ${LO}🦞 自動模式啟用中${RST}  $G(--dangerously-skip-permissions, --safe 可關)${RST}"
-  Write-Host "    ${G}正在啟動 claude...${RST}"
+  Write-Host ""
+}
+
+# 啟動前暫停 (讓使用者來得及讀 banner，否則 claude alt-screen 會立刻清掉)
+if ($showBanner -and -not $quickStart -and -not $nonInteractive) {
+  $e = [char]27; $G = "$e[38;2;130;130;130m"; $Y = "$e[38;2;255;220;100m"; $RST = "$e[0m"
+  $pauseSecs = 8
+  $skipped = $false
+  for ($i = $pauseSecs; $i -gt 0 -and -not $skipped; $i--) {
+    Write-Host -NoNewline "`r    ${G}按任意鍵立即啟動 claude  (${Y}${i}${G} 秒後自動啟動 · --quick 可跳過此暫停)         ${RST}"
+    $tickStart = [DateTime]::Now
+    while (([DateTime]::Now - $tickStart).TotalSeconds -lt 1) {
+      if ([Console]::KeyAvailable) {
+        [Console]::ReadKey($true) | Out-Null
+        $skipped = $true
+        break
+      }
+      Start-Sleep -Milliseconds 80
+    }
+  }
+  Write-Host -NoNewline "`r    ${G}正在啟動 claude...                                                          ${RST}"
   Write-Host ""
 }
 
