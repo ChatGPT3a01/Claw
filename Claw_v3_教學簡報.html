@@ -665,8 +665,14 @@
                 </div>
                 <div class="box info" style="margin-top: 14px;">
                     <strong>沒有付費 Claude 怎麼辦？</strong>
-                    走方案 A 拿 Anthropic API key，把 <code>ANTHROPIC_API_KEY</code> 設為環境變數即可。
+                    走方案 A 拿 Anthropic API key，設成 <code>ANTHROPIC_API_KEY</code> 環境變數即可。
                     Claude Code 認到 API key 就能跑，<strong>不用月費也能用 Claw 完整功能</strong>。
+                </div>
+                <h3 style="margin-top: 22px;">🔧 手動設定 ANTHROPIC_API_KEY（PowerShell）</h3>
+                <pre><code>[System.Environment]::SetEnvironmentVariable('ANTHROPIC_API_KEY', '&lt;您的 key&gt;', 'User')</code></pre>
+                <div class="box tip">
+                    跑 <code>install.ps1</code> 時 Step 5 會用三選一選單<strong>自動幫您寫好</strong>，不用手動跑這行。<br>
+                    上面這行是給「裝完才想加」的進階使用者用的。設完<strong>關掉並重開 PowerShell</strong> 即生效。
                 </div>
             </div>
         </div>
