@@ -401,27 +401,43 @@ Write-Host "    Claw v3.0  一鍵安裝程式 (自包含)" -ForegroundColor Whit
 Write-Host "    Claude × Codex × Gemini  ·  in-session delegation" -ForegroundColor DarkGray
 Write-Host "    by 阿亮老師（曾慶良 主任）" -ForegroundColor Yellow
 
-# === Step 1: 檢查前置 CLI ===
-Section "1/5 檢查前置 CLI"
+# === Step 1: 檢查並自動補裝前置 CLI ===
+Section "1/5 檢查並自動補裝前置 CLI"
 $cliMap = [ordered]@{
-  'node'   = @{ desc = 'Node.js 18+';   install = '前往 https://nodejs.org 下載安裝' }
-  'claude' = @{ desc = 'Claude Code';   install = 'npm install -g @anthropic-ai/claude-code' }
-  'codex'  = @{ desc = 'OpenAI Codex';  install = 'npm install -g @openai/codex' }
-  'gemini' = @{ desc = 'Google Gemini'; install = 'npm install -g @google/gemini-cli' }
+  'claude' = @{ desc = 'Claude Code';   pkg = '@anthropic-ai/claude-code' }
+  'codex'  = @{ desc = 'OpenAI Codex';  pkg = '@openai/codex' }
+  'gemini' = @{ desc = 'Google Gemini'; pkg = '@google/gemini-cli' }
 }
-$missing = @()
-foreach ($cli in $cliMap.Keys) {
-  $c = Get-Command $cli -ErrorAction SilentlyContinue
-  if ($c) { Ok "$cli  ($($cliMap[$cli].desc))" }
-  else { Err "$cli  尚未安裝"; $missing += $cli }
-}
-if ($missing.Count -gt 0) {
+
+# Node.js 是大魚，必須先有
+if (-not (Get-Command node -ErrorAction SilentlyContinue)) {
+  Err "Node.js 未安裝 — 這是必需的基礎依賴"
   Write-Host ""
-  Warn "以下 CLI 未安裝:"
-  foreach ($m in $missing) { Write-Host "    $m  →  $($cliMap[$m].install)" -ForegroundColor Yellow }
+  Warn "請先安裝 Node.js 18+，然後重新執行此程式："
+  Write-Host "    下載頁面: https://nodejs.org" -ForegroundColor Yellow
+  Write-Host "    （安裝完記得重開 PowerShell 讓 PATH 生效）" -ForegroundColor DarkGray
   Write-Host ""
-  Err "中止安裝。請先安裝缺少的 CLI 再重新執行。"
+  try { Start-Process 'https://nodejs.org' } catch {}
   exit 1
+}
+Ok "node  (Node.js 18+)"
+
+# 三家 CLI 缺什麼自動補裝
+foreach ($cli in $cliMap.Keys) {
+  if (Get-Command $cli -ErrorAction SilentlyContinue) {
+    Ok "$cli  ($($cliMap[$cli].desc))"
+  } else {
+    Warn "$cli 未安裝，自動執行: npm install -g $($cliMap[$cli].pkg)"
+    & npm install -g $cliMap[$cli].pkg 2>&1 | Out-String | ForEach-Object {
+      $_.TrimEnd() -split "`n" | ForEach-Object { if ($_) { Write-Host "    $_" -ForegroundColor DarkGray } }
+    }
+    if ($LASTEXITCODE -ne 0 -or -not (Get-Command $cli -ErrorAction SilentlyContinue)) {
+      Err "$cli 自動安裝失敗 (npm exit $LASTEXITCODE)"
+      Warn "請手動執行: npm install -g $($cliMap[$cli].pkg)"
+      exit 1
+    }
+    Ok "$cli 自動安裝完成 ($($cliMap[$cli].desc))"
+  }
 }
 
 # === Step 2: 寫出檔案 ===
