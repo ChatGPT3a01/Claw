@@ -18,11 +18,27 @@
 
 ## 二、安裝步驟（5 分鐘搞定）
 
-### 1. 解壓縮
+### 1. 取得 Claw（兩種方式擇一）
 
-把 `Claw_v2.0.0_學員版_xxxxxxxx.zip` 解壓到你習慣的工作目錄，例如：
+**方式 A：git clone（推薦，可隨時更新）**
+
+```bash
+cd D:\我的AI工具
+git clone https://github.com/ChatGPT3a01/Claw.git
+cd Claw
 ```
-D:\我的AI工具\Claw_v2.0\
+
+未來想拿最新版只要：
+```bash
+cd D:\我的AI工具\Claw
+git pull
+```
+
+**方式 B：解壓 zip（離線教室、無網路時）**
+
+把 `Claw_v2.0.0_學員版_xxxxxxxx.zip` 解壓到工作目錄，例如：
+```
+D:\我的AI工具\Claw\
 ```
 
 ### 2. 安裝 Python 套件

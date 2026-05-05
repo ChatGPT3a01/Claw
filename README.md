@@ -1,266 +1,252 @@
-# 🦞 LiangClaw — 阿亮老師 AI Agent 平台
+# 🦞 Claw — 三 AI CLI 切換器
 
 [![Python 3.11+](https://img.shields.io/badge/Python-3.11%2B-blue.svg)](https://www.python.org/)
+[![Node 18+](https://img.shields.io/badge/Node-18%2B-339933.svg)](https://nodejs.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115%2B-009688.svg)](https://fastapi.tiangolo.com/)
 [![Gradio](https://img.shields.io/badge/Gradio-5.0%2B-orange.svg)](https://gradio.app/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Rich](https://img.shields.io/badge/Rich-CLI-purple.svg)](https://rich.readthedocs.io/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-> **多模型 × 多介面 × 80+ 教育技能** — 專為教育工作者打造的 AI Agent 平台
-
----
-
-## ✨ 功能特色
-
-| 功能 | 說明 |
-|------|------|
-| 🤖 **多模型切換** | Gemini 3、GPT-5.4、Groq (免費)、Claude 4.6 一鍵切換 |
-| 🎓 **80+ 教育技能** | 教案設計、素養評量、學習分析、偏鄉教育、研究方法… |
-| 🖥️ **Gradio GUI** | 瀏覽器聊天介面，支援串流輸出、模型選擇、技能面板 |
-| 📱 **LINE Bot** | 直接在 LINE 群組中對話 |
-| ✈️ **Telegram Bot** | `/start`、`/skills`、`/model` 指令 |
-| 🔄 **自動 Fallback** | 模型不可用時自動切換下一個 |
-| 💾 **Session 管理** | 每位使用者獨立對話歷史 |
-| 🧩 **claw-code 引擎** | 內建 prompt 路由與工具匹配 |
+> **Claude · Gemini · Codex 一鍵切換**
+> 把三家官方 AI CLI 收進同一個 REPL，靠 `/cld` `/gld` `/cod` 統一指揮 — 不用再切換終端視窗。
+> 仿 [openai/codex-plugin-cc](https://github.com/openai/codex-plugin-cc) 機制，再加上 Gemini 線。
 
 ---
 
-## 🏗️ 架構
+## ✨ 核心能力
 
 ```
-┌─────────────────────────────────────────────┐
-│               使用者介面層                    │
-│  ┌─────────┐ ┌──────────┐ ┌──────────────┐  │
-│  │ Gradio  │ │ LINE Bot │ │ Telegram Bot │  │
-│  │  /chat  │ │ /line/   │ │ /telegram/   │  │
-│  └────┬────┘ └────┬─────┘ └──────┬───────┘  │
-│       └───────────┼──────────────┘           │
-│                   ▼                          │
-│        ┌──────────────────┐                  │
-│        │   FastAPI 主應用  │  REST API        │
-│        │   /api/chat      │  /api/skills     │
-│        └────────┬─────────┘  /health         │
-├─────────────────┼───────────────────────────┤
-│                 ▼                            │
-│        ┌──────────────────┐                  │
-│        │  LiangClawAgent  │  核心協調        │
-│        └──┬─────┬─────┬───┘                  │
-│           │     │     │                      │
-│     ┌─────▼─┐ ┌─▼───┐ ┌▼──────────┐         │
-│     │ Model │ │Skill│ │ Session   │         │
-│     │Router │ │Reg. │ │ Manager   │         │
-│     └──┬────┘ └──┬──┘ └───────────┘         │
-│        │         │                           │
-│  ┌─────▼──────┐  │  ┌────────────┐           │
-│  │ Providers  │  └──│ claw-code  │           │
-│  │ Gemini/GPT │     │ PortRuntime│           │
-│  │ Groq/Claude│     └────────────┘           │
-│  └────────────┘                              │
-└─────────────────────────────────────────────┘
+Claude Code（主環境，永遠的起點）
+       ↓ 安裝 Claw
+       ├─ /cld <prompt>   → 直接用 Claude 處理（其實就是 Claude Code 自己）
+       ├─ /gld <prompt>   → 把任務丟給 Gemini CLI，回報結果
+       ├─ /cod <prompt>   → 把任務丟給 Codex CLI，回報結果
+       │
+       └─ /cod:review     → Codex 審查（仿 codex-plugin-cc）
+          /cod:rescue     → Codex 委派
+          /gld:review     → Gemini 審查（新增）
+          /gld:rescue     → Gemini 委派（新增）
 ```
+
+| 引擎 | 預設模型 | `--pro` 模型 | 強項 |
+|------|---------|------------|------|
+| **Claude** | claude-sonnet-4-6 | claude-opus-4-7 | 主導決策、agentic、長 context |
+| **Gemini** | gemini-3-flash-preview | gemini-3.1-pro-preview | 1M token 看全專案、免費 60 req/min |
+| **Codex** | gpt-5.4 | gpt-5.4-pro | OpenAI 視角、對抗式審查 |
 
 ---
 
-## 🚀 快速開始
-
-### 1. 環境需求
-
-- **Python 3.11+**
-- **pip** 套件管理器
-- 至少一組 AI API 金鑰
-
-### 2. 安裝
+## 🚀 黃金三步（學員安裝）
 
 ```bash
-# 複製專案
-cd D:/AI教學與專案實作/專案_Claude_Code/LiangClaw
+# 1. 取得程式碼
+git clone https://github.com/ChatGPT3a01/Claw.git
+cd Claw
 
-# 安裝依賴
+# 2. 安裝依賴 + 全域指令（一次永久生效）
 pip install -r requirements.txt
+.\install_global.ps1                # PowerShell（推薦）
+# 或 install_global.bat              # CMD
 
-# 設定 API 金鑰
-cp .env.example .env
-# 編輯 .env 填入你的金鑰
+# 3. 關掉視窗、開新 PowerShell（任何資料夾都行）
+claw
 ```
 
-### 3. 設定 API 金鑰
+進去就看到三 AI 架構樹狀圖、指令面板、CLI 安裝偵測。
 
-編輯 `.env` 檔案，至少填入一組：
+---
 
-```env
-# Google Gemini (推薦 — 免費額度最多)
-GEMINI_API_KEY=your_key_here
+## 📦 系統需求 + 三家官方 CLI
 
-# OpenAI
-OPENAI_API_KEY=your_key_here
+| 項目 | 版本 | 安裝 |
+|------|------|------|
+| Python | 3.11+ | <https://www.python.org/downloads/> |
+| Node.js | 18.18+ | <https://nodejs.org/> |
+| Claude Code CLI | latest | `npm install -g @anthropic-ai/claude-code` |
+| Gemini CLI | latest | `npm install -g @google/gemini-cli` |
+| Codex CLI | latest | `npm install -g @openai/codex` |
 
-# Groq (免費！)
-GROQ_API_KEY=your_key_here
+> 💡 三家 CLI 至少裝一家就能用 Claw，三家都裝才能體驗完整切換。
+> 各家登入：`claude login` / `gemini`（首次互動引導）/ `codex login`。
 
-# Anthropic
-ANTHROPIC_API_KEY=your_key_here
+---
+
+## 🎮 互動體驗
+
+進 REPL 後，**預設主引擎是 `cld`**，提示符會顯示當前主引擎並換顏色：
+
+```
+claw·cld> 你好                       ← 直接打字 → 走主引擎 cld（青色）
+claw·cld> /use gld                    ← 切主引擎為 Gemini
+claw·gld> 你好                        ← 改走 gld（綠色）
+claw·gld> /cod 寫個 Python 排序       ← 一次性指定 cod，主引擎不變
+claw·gld> /cod:review --base main     ← Codex 程式碼審查
+claw·gld> /gld:review                 ← Gemini 1M context 看全專案
+claw·gld> /cod:status                 ← 查看背景任務
+claw·gld> /help                       ← 完整指令面板
+claw·gld> /quit                       ← 離開
 ```
 
-### 4. 啟動
+### 完整指令一覽
 
-```bash
+| 指令 | 說明 |
+|------|------|
+| `/cld <prompt>` | Claude Code |
+| `/gld <prompt>` | Gemini CLI |
+| `/cod <prompt>` | Codex CLI |
+| `/use cld\|gld\|cod` | 切換主引擎（之後直接打字就送主引擎） |
+| `/cod:review [--base main]` | Codex 程式碼審查（可加 `--background`） |
+| `/cod:adversarial-review` | 對抗式審查，挑戰設計決策 |
+| `/cod:rescue <task>` | 委派任務給 Codex 修 bug |
+| `/gld:review [--base main]` | Gemini 審查（1M context 看全專案） |
+| `/gld:rescue <task>` | 委派任務給 Gemini |
+| `/<eng>:status [job_id]` | 查看背景任務（eng = cld/gld/cod） |
+| `/<eng>:result [job_id]` | 取得已完成任務結果 |
+| `/<eng>:cancel [job_id]` | 取消背景任務 |
+| `/health` | 重新偵測三家 CLI 安裝狀態 |
+| `/skills` | 列出 80+ 內建技能 |
+| `/web` | 開啟 Gradio Web UI |
+| `/quit` | 離開 |
+
+### 共用旗標
+
+| 旗標 | 說明 |
+|------|------|
+| `--pro` | 切到該家「最強」模型 |
+| `--mini` | 切到「迷你/便宜」模型（目前僅 cod 支援 gpt-5.4-mini） |
+| `--background` / `--bg` | 任務丟背景跑，不卡 REPL |
+| `--base <ref>` | review 子指令限定：比對基準分支 |
+| `--model <name>` | 直接指定模型名稱（覆寫上面三檔） |
+| `--effort low/medium/high` | rescue 子指令限定：推理力度 |
+| `--resume` / `--fresh` | rescue 子指令限定：續用上次 / 重新開始 |
+
+---
+
+## 🌐 Web UI 模式
+
+```powershell
 python run.py
 ```
 
-啟動後：
+開瀏覽器到 <http://localhost:8000/chat>，輸入框直接打 slash 指令（與 REPL 同一套）。
 
-| 服務 | 網址 |
-|------|------|
-| Gradio 聊天 | http://localhost:8000/chat |
-| API 文件 | http://localhost:8000/docs |
-| 健康檢查 | http://localhost:8000/health |
+UI 額外提供：
+- 「📖 完整指令說明」折疊面板
+- 「🩺 引擎安裝檢查」即時偵測
+- 一般訊息（不帶 `/`）走原本 `/api/chat`（model_router 自動選 provider）
 
 ---
 
-## 📡 API 端點
-
-| 方法 | 路徑 | 說明 |
-|------|------|------|
-| `POST` | `/api/chat` | 發送訊息 |
-| `GET` | `/api/skills` | 列出所有技能 |
-| `GET` | `/api/models` | 列出所有模型 |
-| `GET` | `/health` | 健康檢查 |
-| `POST` | `/line/webhook` | LINE Bot webhook |
-| `POST` | `/telegram/webhook` | Telegram Bot webhook |
-
-### 對話範例
+## 🔄 學員端更新方式
 
 ```bash
-curl -X POST http://localhost:8000/api/chat \
-  -H "Content-Type: application/json" \
-  -d '{
-    "message": "幫我設計一堂適合偏鄉國小的數學教案",
-    "model": "gemini-3-flash"
-  }'
+cd D:\我的AI工具\Claw
+git pull
 ```
 
-回應：
-
-```json
-{
-  "content": "# 偏鄉國小數學教案...",
-  "model_used": "gemini-3-flash",
-  "session_id": "abc123",
-  "usage": {"input_tokens": 150, "output_tokens": 800},
-  "skill_used": "lesson-plan-generator"
-}
-```
+不需要重發 zip，永遠拿最新版。
 
 ---
 
-## 🤖 支援模型
+## 🧰 一個工作日的三 AI 用法
 
-| 模型 | Provider | 說明 |
-|------|----------|------|
-| `gemini-3-flash` | Google | 快速、免費額度多 ⭐ 預設 |
-| `gemini-3-pro` | Google | 最強推理 |
-| `gpt-5.4` | OpenAI | 2026 最新 |
-| `gpt-5.4-pro` | OpenAI | 最強版本 |
-| `llama-3.3-70b-versatile` | Groq | 完全免費 🆓 |
-| `qwen-3-32b` | Groq | 免費替代 |
-| `claude-opus-4-6` | Anthropic | 最強長文 |
-| `claude-sonnet-4-6` | Anthropic | 快速實用 |
-
----
-
-## 📱 Bot 設定
-
-### LINE Bot
-
-1. 前往 [LINE Developers Console](https://developers.line.biz/)
-2. 建立 Messaging API Channel
-3. 取得 Channel Access Token 和 Channel Secret
-4. 設定 Webhook URL: `https://your-domain/line/webhook`
-5. 填入 `.env`
-
-### Telegram Bot
-
-1. 與 [@BotFather](https://t.me/BotFather) 對話，建立 Bot
-2. 取得 Bot Token
-3. 設定 Webhook: `https://api.telegram.org/bot<TOKEN>/setWebhook?url=https://your-domain/telegram/webhook`
-4. 填入 `.env`
-
----
-
-## 🎓 教育技能
-
-LiangClaw 自動載入 `~/.claude/skills/` 下所有含 `SKILL.md` 的技能。
-
-常用技能分類：
-
-- **教學設計**: 教案產生、PBL、遊戲化學習、SEL 活動
-- **學習分析**: 素養評量、同儕互評、學生輪廓
-- **研究方法**: 準實驗設計、混合研究、實證自動化
-- **偏鄉教育**: 在地化教材、偏鄉平台設計
-- **AI 工具**: AI 融入教學、生成式 AI 應用
-- **ICT 融入**: 資訊科技融入各科教學
-
----
-
-## 🧪 測試
-
-```bash
-# 執行所有測試
-python -m pytest tests/ -v
-
-# 單一模組
-python -m pytest tests/test_agent.py -v
-python -m pytest tests/test_model_router.py -v
-python -m pytest tests/test_skill_loader.py -v
-python -m pytest tests/test_interfaces.py -v
-```
+| 時段 | 任務 | 用哪個 | 為什麼 |
+|------|------|--------|--------|
+| 早上 | 設計新功能架構 | `/cld --pro` | Claude opus 深度規劃 |
+| 上午 | 寫骨架程式碼 | Claude Code 主環境直接寫 | 不離開主環境 |
+| 中午 | 整個專案級的 review | `/gld:review` | Gemini 1M context 免費 |
+| 下午 | 對抗式設計審查 | `/cod:adversarial-review` | Codex 用不同視角挑戰 |
+| 傍晚 | 修 CI 上的 flaky test | `/cod:rescue --background` | 丟背景跑，邊做別的 |
+| 收工前 | 生成 PR 描述 | `/gld 一段繁體中文 PR 描述` | flash 快又免費 |
 
 ---
 
 ## 📁 專案結構
 
 ```
-LiangClaw/
-├── run.py                  # 一鍵啟動
-├── requirements.txt        # Python 依賴
-├── .env.example            # API 金鑰範本
-├── config/
-│   ├── default.yaml        # 全域設定
-│   ├── models.yaml         # 模型清單
-│   └── personas/
-│       └── aliang.yaml     # 阿亮老師人設
+Claw/
+├── claw.py                  # terminal REPL 入口
+├── claw.bat / claw.ps1      # Windows 啟動器
+├── install_global.bat/ps1   # 一鍵全域 PATH 安裝
+├── run.py                   # Web UI 啟動腳本（FastAPI + Gradio）
+├── build_student_zip.py     # 學員包打包腳本
 ├── src/
 │   ├── core/
-│   │   ├── agent.py        # LiangClawAgent 主類別
-│   │   ├── model_router.py # 多模型路由 + fallback
-│   │   ├── session_manager.py
-│   │   └── providers/      # Gemini / OpenAI / Groq / Claude
-│   ├── claw/               # claw-code 引擎 fork
-│   ├── skills/             # 技能載入系統
-│   └── utils/              # 設定、日誌
+│   │   ├── cli_router.py    # 三 AI subprocess wrapper（核心）
+│   │   ├── agent.py         # 多模型 Agent
+│   │   ├── model_router.py  # 一般訊息的模型路由
+│   │   └── providers/       # 各家 API provider 封裝
+│   ├── claw/                # Claude Code 鏡像層（指令快照、權限、session）
+│   ├── skills/              # 技能載入器
+│   └── tools/               # 工具實作（Read / Write / Bash / Glob / Grep ...）
 ├── interfaces/
-│   ├── app.py              # FastAPI 主應用
-│   ├── gradio_ui.py        # Gradio 聊天 UI
-│   ├── line_bot.py         # LINE Bot
-│   ├── telegram_bot.py     # Telegram Bot
-│   └── message_adapter.py  # 統一訊息格式
-├── skills/bundled/         # 精選教育技能
-├── docs/
-│   ├── teaching-guide.md   # 完整教學手冊
-│   └── generate_pdf.py     # MD → PDF 產生器
-└── tests/                  # 單元測試
+│   ├── app.py               # FastAPI 主應用
+│   ├── gradio_ui.py         # Web UI（含 slash 指令解析）
+│   ├── line_bot.py          # LINE Bot Webhook
+│   └── telegram_bot.py      # Telegram Bot Webhook
+├── skills/bundled/          # 80+ 內建教育技能
+├── config/                  # 預設設定（personas / models）
+└── tests/                   # pytest 測試
 ```
 
 ---
 
-## 📄 授權
+## 🦐 Claw 與 codex-plugin-cc 的差異
 
-MIT License
+| 面向 | codex-plugin-cc | **Claw** |
+|------|-----------------|---------|
+| 引擎數量 | 2（Claude + Codex） | **3**（+ Gemini） |
+| 安裝形式 | Claude Code Plugin | 獨立 terminal REPL + Web UI |
+| Gemini review | ✗ | ✅（`/gld:review` 1M context） |
+| Web UI | ✗ | ✅（Gradio） |
+| 多介面 | terminal | terminal + Web + LINE + Telegram |
+| 內建技能 | ✗ | ✅ 80+ 教育用技能庫 |
+
+---
+
+## 📚 教學書配套
+
+本專案是「**Claude Code 聖經：從入門到實戰全攻略**」**第五篇 CH18** 的實作配套。
+書中以這個專案為案例，逐步教學從 0 到 1 建立三 AI CLI 切換器。
+
+- 書籍主檔：`第五篇/CH18_Claw三AI切換器/CH18_Claw三AI切換器.md`
+- 簡報：`簡報/Part5_第五篇_CH18-21.html`
+- 教師手冊 / 實作手冊：`簡報/teacher-manual/` 與 `簡報/practice-manual/`
 
 ---
 
 ## 👨‍🏫 作者
 
-**阿亮老師（曾慶良）**
+**曾慶良（阿亮老師）**
+- 新興科技推廣中心主任
+- 教育部人工智慧講師認證
+- Email：iddmail@ycsh.tp.edu.tw
 
-- 教育部數位學習推動辦公室
-- 專長：AI 融入教學、偏鄉教育、學習分析
+---
+
+## 📜 License
+
+MIT License — 自由用、自由改、商用都行。
+
+---
+
+## 🆘 常見問題
+
+**Q：`Unknown command: /cld`？**
+A：你應該在 Claw 裡（打 `claw` 進入），不是在 Claude Code 裡。Claude Code 不認識 `/cld`。
+
+**Q：`gemini` / `claude` / `codex` 找不到？**
+A：三家 CLI 沒裝完。回頭做「系統需求」那一節的 `npm install -g`。
+
+**Q：`/cod` 報 `Not inside a trusted directory`？**
+A：Claw 已經自動加了 `--skip-git-repo-check`，請更新到最新版（`git pull`）。
+
+**Q：Gemini 回 429 錯誤？**
+A：免費版有限制（60 req/min, 1000 req/day）。等一下再試，或登入付費帳號。
+
+**Q：要不要每家都裝？**
+A：不用。只裝你會用的就好，Claw 啟動時會偵測哪些 CLI 可用。
+
+---
+
+🦞 **Happy Switching!** — 把對的問題丟給對的 AI，比硬要一個 AI 全包更省錢、更高品質。
