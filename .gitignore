@@ -33,6 +33,10 @@ docs/*.pdf
 # Gradio
 flagged/
 
+# Node modules (puppeteer for html-to-png is heavy, keep package*.json only)
+node_modules/
+docs/node_modules/
+
 # Claw runtime
 .claw/jobs/
 .claw/cache/

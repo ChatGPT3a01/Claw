@@ -54,73 +54,82 @@ console = Console()
 # ---------- Banner ----------
 
 def render_banner() -> None:
-    title = Text("🦞 Claw", style="bold cyan")
-    sub = Text(" — 三 AI CLI 切換器 ", style="dim")
-    ver = Text(f"v{__version__}", style="bold yellow")
-    header = Text.assemble(title, sub, ver)
-    console.print(Panel(header, border_style="cyan", padding=(0, 2)))
+    title = Text("🦞 Claw", style="bold #b71c1c")
+    sub = Text(" — 三 AI CLI 切換器 ", style="bold #1a1a1a")
+    ver = Text(f"v{__version__}", style="bold #e65100")
+    author = Text("    by 阿亮老師（曾慶良）· 新興科技推廣中心", style="bold #4a148c")
+    header = Text.assemble(title, sub, ver, author)
+    console.print(Panel(header, border_style="#b71c1c", padding=(0, 2)))
 
 
 def render_architecture() -> None:
     """啟動畫面顯示三 AI 架構樹狀圖。"""
     # 用「明確顏色」取代 dim，避免在亮色終端看不見
-    main_text = "bold default"      # 主文字：終端預設色 + 粗體（亮/暗主題都對比強）
-    tree_color = "bright_blue"      # 樹狀符號用亮藍，亮/暗主題都看得到
+    # ── 深飽和色盤（亮/暗終端皆清晰）──
+    C_CLD    = "bold #0d47a1"   # Claude 深藍
+    C_GLD    = "bold #1b5e20"   # Gemini 深綠
+    C_COD    = "bold #b71c1c"   # Codex 深紅
+    C_NEW    = "bold #6a1b9a"   # 「新增」深紫
+    C_PLUGIN = "bold #ad1457"   # Claw plugin 玫瑰紅
+    main_text = "bold #1a1a1a"      # 主文字接近黑
+    tree_color = "bold #1565c0"     # 樹狀符號深藍
     arch = Text()
-    arch.append("Claude Code", style="bold cyan")
+    arch.append("Claude Code", style=C_CLD)
     arch.append("（主環境，永遠的起點）\n", style=main_text)
     arch.append("       ↓ 安裝 ", style=main_text)
-    arch.append("Claw plugin", style="bold magenta")
+    arch.append("Claw plugin", style=C_PLUGIN)
     arch.append("\n")
     arch.append("       ├─ ", style=tree_color)
-    arch.append("/cld", style="bold cyan")
+    arch.append("/cld", style=C_CLD)
     arch.append(" <prompt>   → 直接用 Claude 處理（其實就是 Claude Code 自己）\n", style=main_text)
     arch.append("       ├─ ", style=tree_color)
-    arch.append("/gld", style="bold green")
+    arch.append("/gld", style=C_GLD)
     arch.append(" <prompt>   → 把任務丟給 ", style=main_text)
-    arch.append("Gemini CLI", style="bold green")
+    arch.append("Gemini CLI", style=C_GLD)
     arch.append("，回報結果\n", style=main_text)
     arch.append("       ├─ ", style=tree_color)
-    arch.append("/cod", style="bold yellow")
+    arch.append("/cod", style=C_COD)
     arch.append(" <prompt>   → 把任務丟給 ", style=main_text)
-    arch.append("Codex CLI", style="bold yellow")
+    arch.append("Codex CLI", style=C_COD)
     arch.append("，回報結果\n", style=main_text)
     arch.append("       │\n", style=tree_color)
     arch.append("       └─ ", style=tree_color)
-    arch.append("/cod:review", style="bold yellow")
+    arch.append("/cod:review", style=C_COD)
     arch.append("     → Codex 審查（仿 codex-plugin-cc）\n", style=main_text)
     arch.append("          ", style=tree_color)
-    arch.append("/cod:rescue", style="bold yellow")
+    arch.append("/cod:rescue", style=C_COD)
     arch.append("     → Codex 委派\n", style=main_text)
     arch.append("          ", style=tree_color)
-    arch.append("/gld:review", style="bold green")
+    arch.append("/gld:review", style=C_GLD)
     arch.append("     → Gemini 審查（", style=main_text)
-    arch.append("新增", style="bold magenta")
+    arch.append("新增", style=C_NEW)
     arch.append("）\n", style=main_text)
     arch.append("          ", style=tree_color)
-    arch.append("/gld:rescue", style="bold green")
+    arch.append("/gld:rescue", style=C_GLD)
     arch.append("     → Gemini 委派（", style=main_text)
-    arch.append("新增", style="bold magenta")
+    arch.append("新增", style=C_NEW)
     arch.append("）", style=main_text)
 
-    console.print(Panel(arch, title="[bold]Claw 架構[/bold]", border_style="magenta", padding=(1, 2)))
+    console.print(Panel(arch, title="[bold #4a148c]Claw 架構[/bold #4a148c]",
+                        border_style="#4a148c", padding=(1, 2)))
 
 
 def render_command_panel() -> None:
-    table = Table(show_header=True, header_style="bold magenta", box=None, padding=(0, 2))
-    table.add_column("指令", style="bold cyan", no_wrap=True)
-    table.add_column("引擎", style="bold green")
-    table.add_column("說明", style="bold default")
+    table = Table(show_header=True, header_style="bold #4a148c", box=None, padding=(0, 2))
+    table.add_column("指令", style="bold #0d47a1", no_wrap=True)
+    table.add_column("引擎", style="bold #1b5e20")
+    table.add_column("說明", style="bold #1a1a1a")
 
     table.add_row("/cld <prompt>", "Claude Code", "Anthropic（預設 sonnet-4-6 / --pro opus-4-7）")
     table.add_row("/gld <prompt>", "Gemini CLI", "Google（預設 3-flash / --pro 3.1-pro）")
     table.add_row("/cod <prompt>", "Codex CLI", "OpenAI（預設 gpt-5.4 / --pro gpt-5.4-pro）")
 
-    console.print(Panel(table, title="[bold]三 AI 切換指令[/bold]", border_style="green"))
+    console.print(Panel(table, title="[bold #1b5e20]三 AI 切換指令[/bold #1b5e20]",
+                        border_style="#1b5e20"))
 
-    advanced = Table(show_header=True, header_style="bold magenta", box=None, padding=(0, 2))
-    advanced.add_column("指令", style="bold cyan", no_wrap=True)
-    advanced.add_column("說明", style="bold default")
+    advanced = Table(show_header=True, header_style="bold #4a148c", box=None, padding=(0, 2))
+    advanced.add_column("指令", style="bold #0d47a1", no_wrap=True)
+    advanced.add_column("說明", style="bold #1a1a1a")
 
     advanced.add_row("/use cld|gld|cod", "切換主引擎（之後直接打字就送主引擎）")
     advanced.add_row("/cod:review [--base main]", "Codex 程式碼審查（可加 --background）")
@@ -136,24 +145,26 @@ def render_command_panel() -> None:
     advanced.add_row("/web", "在瀏覽器開啟 Gradio UI")
     advanced.add_row("/quit  或  /exit", "離開 Claw")
 
-    console.print(Panel(advanced, title="[bold]進階指令[/bold]", border_style="yellow"))
+    console.print(Panel(advanced, title="[bold #e65100]進階指令[/bold #e65100]",
+                        border_style="#e65100"))
 
 
 def render_health() -> None:
     """Show which engine CLIs are installed."""
-    table = Table(show_header=True, header_style="bold magenta", box=None, padding=(0, 2))
-    table.add_column("引擎", style="bold cyan")
-    table.add_column("狀態", style="bold default")
-    table.add_column("安裝指令", style="bold yellow")
+    table = Table(show_header=True, header_style="bold #4a148c", box=None, padding=(0, 2))
+    table.add_column("引擎", style="bold #0d47a1")
+    table.add_column("狀態", style="bold #1a1a1a")
+    table.add_column("安裝指令", style="bold #b71c1c")
 
     for eng, binary in CLI_BINARIES.items():
         installed = is_cli_installed(eng)
         if installed:
-            table.add_row(f"{eng} ({binary})", "[green]✓ 已安裝[/green]", "—")
+            table.add_row(f"{eng} ({binary})", "[bold #1b5e20]✓ 已安裝[/bold #1b5e20]", "—")
         else:
-            table.add_row(f"{eng} ({binary})", "[red]✗ 未安裝[/red]", install_hint(eng))
+            table.add_row(f"{eng} ({binary})", "[bold #b71c1c]✗ 未安裝[/bold #b71c1c]", install_hint(eng))
 
-    console.print(Panel(table, title="[bold]CLI 安裝檢查[/bold]", border_style="blue"))
+    console.print(Panel(table, title="[bold #0d47a1]CLI 安裝檢查[/bold #0d47a1]",
+                        border_style="#0d47a1"))
 
 
 # ---------- Output formatting ----------

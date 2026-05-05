@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<title>Claw FB 縮圖</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@500;700;900&family=JetBrains+Mono:wght@600;800&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    width: 1200px;
+    height: 630px;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+  }
+  body {
+    font-family: 'Noto Sans TC', sans-serif;
+    background: #0a0e27;
+    background-image:
+      radial-gradient(circle at 15% 30%, rgba(0, 200, 220, 0.18) 0%, transparent 45%),
+      radial-gradient(circle at 85% 70%, rgba(255, 200, 50, 0.15) 0%, transparent 45%),
+      radial-gradient(circle at 50% 50%, rgba(120, 80, 220, 0.12) 0%, transparent 60%);
+    color: #fff;
+    position: relative;
+  }
+
+  /* 細網格背景 */
+  body::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+  }
+
+  .container {
+    position: relative;
+    width: 1200px;
+    height: 630px;
+    padding: 30px 56px;
+    display: grid;
+    grid-template-rows: 90px 1fr 80px;
+    gap: 18px;
+    box-sizing: border-box;
+  }
+
+  /* ==== 頂部：品牌列 ==== */
+  .top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+
+  .logo-emoji {
+    font-size: 54px;
+    filter: drop-shadow(0 4px 16px rgba(255, 100, 100, 0.4));
+  }
+
+  .brand-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 64px;
+    font-weight: 800;
+    letter-spacing: -2px;
+    line-height: 1;
+    background: linear-gradient(135deg, #ffffff 0%, #c2e9fb 60%, #a1c4fd 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .version-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 18px;
+    font-weight: 700;
+    color: #ffd54a;
+    background: rgba(255, 213, 74, 0.12);
+    border: 1.5px solid rgba(255, 213, 74, 0.4);
+    border-radius: 8px;
+    padding: 6px 14px;
+    margin-left: 14px;
+    letter-spacing: 1px;
+  }
+
+  .author {
+    text-align: right;
+    font-size: 18px;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.65);
+    font-weight: 500;
+  }
+  .author strong {
+    color: #ffd54a;
+    font-weight: 700;
+  }
+
+  /* ==== 中間：主視覺 ==== */
+  .main {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 50px;
+  }
+
+  .left {
+    flex: 1;
+  }
+
+  .tagline {
+    font-size: 22px;
+    color: #8ee9f8;
+    font-weight: 600;
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+  }
+
+  .headline {
+    font-size: 42px;
+    font-weight: 900;
+    line-height: 1.2;
+    letter-spacing: -1px;
+    margin-bottom: 16px;
+  }
+  .headline .accent {
+    color: #ffd54a;
+  }
+  .headline .pop {
+    background: linear-gradient(90deg, #00d9ff 0%, #b388ff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .sub {
+    font-size: 18px;
+    color: rgba(255,255,255,0.78);
+    line-height: 1.6;
+    font-weight: 500;
+  }
+  .sub strong {
+    color: #fff;
+    font-weight: 700;
+  }
+
+  /* ==== 右側：三 AI 卡片 ==== */
+  .right {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 360px;
+  }
+
+  .ai-card {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding: 12px 20px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1.5px solid rgba(255, 255, 255, 0.12);
+    border-radius: 14px;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s;
+  }
+
+  .ai-card.cld { border-left: 5px solid #00d9ff; }
+  .ai-card.gld { border-left: 5px solid #34d399; }
+  .ai-card.cod { border-left: 5px solid #ffd54a; }
+
+  .cmd {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 22px;
+    font-weight: 800;
+    width: 70px;
+  }
+  .cld .cmd { color: #00d9ff; }
+  .gld .cmd { color: #34d399; }
+  .cod .cmd { color: #ffd54a; }
+
+  .ai-info {
+    flex: 1;
+  }
+  .ai-name {
+    font-size: 19px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 2px;
+  }
+  .ai-desc {
+    font-size: 13px;
+    color: rgba(255,255,255,0.55);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* ==== 底部：黃金三步 + URL ==== */
+  .bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+
+  .steps {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+  }
+
+  .step {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 18px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 10px;
+  }
+  .step-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 22px;
+    font-weight: 900;
+    color: #ffd54a;
+  }
+  .step-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    color: #c2e9fb;
+    font-weight: 600;
+  }
+  .arrow {
+    color: rgba(255,255,255,0.4);
+    font-size: 18px;
+  }
+
+  .url-box {
+    text-align: right;
+  }
+  .url-label {
+    font-size: 13px;
+    color: rgba(255,255,255,0.5);
+    margin-bottom: 4px;
+    letter-spacing: 1.5px;
+    font-weight: 600;
+  }
+  .url {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 17px;
+    font-weight: 700;
+    color: #ffd54a;
+    background: rgba(255,213,74,0.08);
+    padding: 6px 14px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,213,74,0.3);
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- 頂部 -->
+  <div class="top-bar">
+    <div class="brand">
+      <div class="logo-emoji">🦞</div>
+      <div>
+        <div class="brand-name">Claw<span class="version-badge">v2.0</span></div>
+      </div>
+    </div>
+    <div class="author">
+      <strong>阿亮老師</strong> 開源工具<br>
+      新興科技推廣中心
+    </div>
+  </div>
+
+  <!-- 中間 -->
+  <div class="main">
+    <div class="left">
+      <div class="tagline">▸ 三 AI 統一指揮所</div>
+      <div class="headline">
+        <span class="accent">Claude</span> × <span class="pop">Gemini</span> × <span class="accent">Codex</span><br>
+        一個指令全切換
+      </div>
+      <div class="sub">
+        把三家官方 AI CLI 收進<strong>同一個 REPL</strong>，<br>
+        不用切視窗、不用記三套登入。
+      </div>
+    </div>
+
+    <div class="right">
+      <div class="ai-card cld">
+        <div class="cmd">/cld</div>
+        <div class="ai-info">
+          <div class="ai-name">Claude Code</div>
+          <div class="ai-desc">Anthropic · 主導決策</div>
+        </div>
+      </div>
+      <div class="ai-card gld">
+        <div class="cmd">/gld</div>
+        <div class="ai-info">
+          <div class="ai-name">Gemini CLI</div>
+          <div class="ai-desc">Google · 1M context 免費</div>
+        </div>
+      </div>
+      <div class="ai-card cod">
+        <div class="cmd">/cod</div>
+        <div class="ai-info">
+          <div class="ai-name">Codex CLI</div>
+          <div class="ai-desc">OpenAI · 對抗式審查</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 底部 -->
+  <div class="bottom">
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-text">git clone</div>
+      </div>
+      <div class="arrow">▸</div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-text">install_global</div>
+      </div>
+      <div class="arrow">▸</div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-text">claw</div>
+      </div>
+    </div>
+
+    <div class="url-box">
+      <div class="url-label">GITHUB</div>
+      <div class="url">github.com/ChatGPT3a01/Claw</div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
