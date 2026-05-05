@@ -519,8 +519,26 @@ if ($SkipPlugins) {
   }
 }
 
-# === Step 4: 設定 PowerShell profile ===
-Section "4/6 設定 PowerShell profile"
+# === Step 4: 設定 User PATH + PowerShell profile ===
+Section "4/6 設定 PATH 與 PowerShell alias"
+
+# (1) User 層級 PATH (CMD / PowerShell / 任何新開視窗都認得)
+$userPath = [System.Environment]::GetEnvironmentVariable('Path', 'User')
+if ($null -eq $userPath) { $userPath = '' }
+$pathParts = $userPath -split ';' | Where-Object { $_ }
+if ($pathParts -notcontains $InstallDir) {
+  $newPath = if ($userPath) { "$userPath;$InstallDir" } else { $InstallDir }
+  [System.Environment]::SetEnvironmentVariable('Path', $newPath, 'User')
+  Ok "User PATH 加入 $InstallDir (CMD / PowerShell 新開視窗都能用)"
+  # 同時更新本進程 PATH (這樣此次 install.ps1 結束後不用重開也能用)
+  if (($env:PATH -split ';') -notcontains $InstallDir) {
+    $env:PATH = "$env:PATH;$InstallDir"
+  }
+} else {
+  Info "User PATH 已含 $InstallDir"
+}
+
+# (2) PowerShell profile (mcp-on / mcp-off / mcp-ls alias)
 if (-not (Test-Path $PROFILE)) {
   New-Item -ItemType File -Path $PROFILE -Force | Out-Null
   Ok "建立 profile: $PROFILE"
@@ -530,23 +548,18 @@ $endMarker = '# === end claw v3 ==='
 $existing  = Get-Content $PROFILE -Raw -ErrorAction SilentlyContinue
 if ($null -eq $existing) { $existing = '' }
 if ($existing.Contains($marker)) {
-  Warn "profile 已含 claw 設定，跳過 (避免重複)"
+  Warn "PowerShell profile 已含 claw 設定，跳過 (避免重複)"
 } else {
   $block = @"
 
 $marker
-if ('$InstallDir' -notin (`$env:PATH -split ';')) {
-  `$env:PATH += ';$InstallDir'
-}
 function mcp-on  { & "`$env:USERPROFILE\.claude\mcp-presets\load.ps1"   `$args[0] }
 function mcp-off { & "`$env:USERPROFILE\.claude\mcp-presets\unload.ps1" `$args[0] }
 function mcp-ls  { & "`$env:USERPROFILE\.claude\mcp-presets\list.ps1" }
 $endMarker
 "@
   Add-Content $PROFILE $block
-  Ok "已加入 $PROFILE"
-  Info "PATH += $InstallDir"
-  Info "alias  mcp-on / mcp-off / mcp-ls"
+  Ok "PowerShell profile 加入 mcp-on / mcp-off / mcp-ls alias"
 }
 
 # === Step 5: 互動式認證 (Codex + Gemini) ===
